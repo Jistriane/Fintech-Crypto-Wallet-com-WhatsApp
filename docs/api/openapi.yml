@@ -1,0 +1,617 @@
+openapi: 3.0.0
+info:
+  title: Fintech Crypto Wallet API
+  description: |
+    API para integração com a carteira de criptomoedas com suporte a KYC via WhatsApp.
+    
+    ## Recursos Principais
+    - KYC (Know Your Customer) via WhatsApp
+    - Gerenciamento de carteiras
+    - Operações DeFi (swaps, pools de liquidez)
+    - Monitoramento e alertas
+    
+    ## Autenticação
+    A API utiliza autenticação JWT com 2FA via WhatsApp.
+  version: 1.0.0
+  contact:
+    name: Time de Desenvolvimento
+    email: dev@fintech.com
+
+servers:
+  - url: https://api.fintech.com/v1
+    description: Produção
+  - url: https://api.staging.fintech.com/v1
+    description: Staging
+  - url: http://localhost:3000/v1
+    description: Desenvolvimento
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        phone:
+          type: string
+          pattern: '^\+[1-9]\d{1,14}$'
+        email:
+          type: string
+          format: email
+        kycStatus:
+          type: string
+          enum: [PENDING, IN_PROGRESS, APPROVED, REJECTED]
+        kycLevel:
+          type: string
+          enum: [LEVEL_0, LEVEL_1, LEVEL_2, LEVEL_3]
+        whatsappOptIn:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Wallet:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        address:
+          type: string
+          pattern: '^0x[a-fA-F0-9]{40}$'
+        network:
+          type: string
+          enum: [POLYGON, BSC]
+        isActive:
+          type: boolean
+        balances:
+          type: array
+          items:
+            $ref: '#/components/schemas/TokenBalance'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Token:
+      type: object
+      properties:
+        address:
+          type: string
+          pattern: '^0x[a-fA-F0-9]{40}$'
+        symbol:
+          type: string
+        decimals:
+          type: integer
+          minimum: 0
+          maximum: 18
+        network:
+          type: string
+          enum: [POLYGON, BSC]
+
+    TokenBalance:
+      type: object
+      properties:
+        token:
+          $ref: '#/components/schemas/Token'
+        balance:
+          type: string
+          description: Valor em formato decimal string (BigNumber)
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        walletId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [TRANSFER, SWAP, LIQUIDITY_ADD, LIQUIDITY_REMOVE, FIAT_DEPOSIT, FIAT_WITHDRAWAL]
+        status:
+          type: string
+          enum: [PENDING, PROCESSING, CONFIRMED, FAILED, CANCELLED]
+        fromAddress:
+          type: string
+          pattern: '^0x[a-fA-F0-9]{40}$'
+        toAddress:
+          type: string
+          pattern: '^0x[a-fA-F0-9]{40}$'
+        token:
+          $ref: '#/components/schemas/Token'
+        amount:
+          type: string
+          description: Valor em formato decimal string (BigNumber)
+        hash:
+          type: string
+          pattern: '^0x[a-fA-F0-9]{64}$'
+        failureReason:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        confirmedAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    LiquidityPool:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        token0:
+          $ref: '#/components/schemas/Token'
+        token1:
+          $ref: '#/components/schemas/Token'
+        totalSupply:
+          type: string
+          description: Valor em formato decimal string (BigNumber)
+        reserve0:
+          type: string
+          description: Valor em formato decimal string (BigNumber)
+        reserve1:
+          type: string
+          description: Valor em formato decimal string (BigNumber)
+        apy:
+          type: number
+          format: float
+        network:
+          type: string
+          enum: [POLYGON, BSC]
+
+paths:
+  /auth/login:
+    post:
+      summary: Iniciar processo de autenticação
+      description: Inicia o processo de autenticação enviando código 2FA via WhatsApp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: string
+                  pattern: '^\+[1-9]\d{1,14}$'
+                deviceId:
+                  type: string
+      responses:
+        '200':
+          description: Processo iniciado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionId:
+                    type: string
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Muitas tentativas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/verify:
+    post:
+      summary: Verificar código 2FA
+      description: Verifica o código 2FA enviado via WhatsApp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sessionId:
+                  type: string
+                code:
+                  type: string
+                  pattern: '^\d{6}$'
+      responses:
+        '200':
+          description: Autenticação bem-sucedida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '400':
+          description: Código inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Muitas tentativas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /kyc/start:
+    post:
+      summary: Iniciar processo KYC
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Processo iniciado com sucesso
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /kyc/documents:
+    post:
+      summary: Enviar documento KYC
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [ID_FRONT, ID_BACK, SELFIE, ADDRESS_PROOF]
+                image:
+                  type: string
+                  format: binary
+                metadata:
+                  type: object
+      responses:
+        '200':
+          description: Documento processado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isValid:
+                    type: boolean
+        '400':
+          description: Documento inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /kyc/users/{userId}/status:
+    get:
+      summary: Consultar status KYC
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Status do KYC
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [PENDING, IN_PROGRESS, APPROVED, REJECTED]
+                  level:
+                    type: string
+                    enum: [LEVEL_0, LEVEL_1, LEVEL_2, LEVEL_3]
+                  limits:
+                    type: object
+                    properties:
+                      daily:
+                        type: string
+                      monthly:
+                        type: string
+                      singleTransaction:
+                        type: string
+
+  /defi/wallets:
+    post:
+      summary: Criar carteira
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                network:
+                  type: string
+                  enum: [POLYGON, BSC]
+      responses:
+        '201':
+          description: Carteira criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+        '403':
+          description: KYC insuficiente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /defi/wallets/{walletId}/transfer:
+    post:
+      summary: Transferir tokens
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: walletId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                toAddress:
+                  type: string
+                  pattern: '^0x[a-fA-F0-9]{40}$'
+                token:
+                  $ref: '#/components/schemas/Token'
+                amount:
+                  type: string
+                  description: Valor em formato decimal string
+      responses:
+        '200':
+          description: Transação criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Saldo insuficiente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /defi/swap/quote:
+    post:
+      summary: Obter cotação de swap
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                walletId:
+                  type: string
+                  format: uuid
+                tokenIn:
+                  $ref: '#/components/schemas/Token'
+                tokenOut:
+                  $ref: '#/components/schemas/Token'
+                amountIn:
+                  type: string
+                  description: Valor em formato decimal string
+      responses:
+        '200':
+          description: Cotação obtida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  amountOut:
+                    type: string
+                  priceImpact:
+                    type: number
+                    format: float
+                  fee:
+                    type: string
+
+  /defi/swap/execute:
+    post:
+      summary: Executar swap
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                walletId:
+                  type: string
+                  format: uuid
+                tokenIn:
+                  $ref: '#/components/schemas/Token'
+                tokenOut:
+                  $ref: '#/components/schemas/Token'
+                amountIn:
+                  type: string
+                  description: Valor em formato decimal string
+                minAmountOut:
+                  type: string
+                  description: Valor mínimo aceitável
+      responses:
+        '200':
+          description: Swap executado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Slippage muito alto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /liquidity/pools:
+    get:
+      summary: Listar pools de liquidez
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de pools
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LiquidityPool'
+
+  /liquidity/pools/{poolId}:
+    get:
+      summary: Detalhes da pool
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: poolId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Detalhes da pool
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiquidityPool'
+
+  /liquidity/add:
+    post:
+      summary: Adicionar liquidez
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                walletId:
+                  type: string
+                  format: uuid
+                poolId:
+                  type: string
+                  format: uuid
+                amount0Desired:
+                  type: string
+                amount1Desired:
+                  type: string
+                amount0Min:
+                  type: string
+                amount1Min:
+                  type: string
+      responses:
+        '200':
+          description: Liquidez adicionada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+
+  /liquidity/remove:
+    post:
+      summary: Remover liquidez
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                walletId:
+                  type: string
+                  format: uuid
+                poolId:
+                  type: string
+                  format: uuid
+                liquidity:
+                  type: string
+                amount0Min:
+                  type: string
+                amount1Min:
+                  type: string
+      responses:
+        '200':
+          description: Liquidez removida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'

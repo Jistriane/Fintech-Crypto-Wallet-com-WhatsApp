@@ -1,0 +1,86 @@
+{
+  "environments": {
+    "local": {
+      "API_URL": "http://localhost:3000/api"
+    },
+    "staging": {
+      "API_URL": "https://staging-api.example.com/api"
+    },
+    "production": {
+      "API_URL": "https://api.example.com/api"
+    }
+  },
+  "output": {
+    "format": "json",
+    "file": "./results/load-test-results.json"
+  },
+  "systemTags": [
+    "scenario",
+    "test_type",
+    "status",
+    "method",
+    "url",
+    "name"
+  ],
+  "thresholds": {
+    "http_req_duration": ["p(95)<2000"],
+    "http_req_failed": ["rate<0.01"],
+    "failed_requests": ["rate<0.05"]
+  },
+  "scenarios": {
+    "smoke": {
+      "executor": "constant-vus",
+      "vus": 1,
+      "duration": "1m",
+      "tags": { "test_type": "smoke" }
+    },
+    "load": {
+      "executor": "ramping-vus",
+      "startVUs": 0,
+      "stages": [
+        { "duration": "5m", "target": 100 },
+        { "duration": "10m", "target": 100 },
+        { "duration": "5m", "target": 0 }
+      ],
+      "tags": { "test_type": "load" }
+    },
+    "stress": {
+      "executor": "ramping-vus",
+      "startVUs": 0,
+      "stages": [
+        { "duration": "3m", "target": 100 },
+        { "duration": "5m", "target": 100 },
+        { "duration": "3m", "target": 200 },
+        { "duration": "5m", "target": 200 },
+        { "duration": "3m", "target": 300 },
+        { "duration": "5m", "target": 300 },
+        { "duration": "3m", "target": 0 }
+      ],
+      "tags": { "test_type": "stress" }
+    },
+    "spike": {
+      "executor": "ramping-vus",
+      "startVUs": 0,
+      "stages": [
+        { "duration": "2m", "target": 50 },
+        { "duration": "3m", "target": 50 },
+        { "duration": "1m", "target": 300 },
+        { "duration": "3m", "target": 300 },
+        { "duration": "1m", "target": 50 },
+        { "duration": "3m", "target": 50 },
+        { "duration": "2m", "target": 0 }
+      ],
+      "tags": { "test_type": "spike" }
+    },
+    "soak": {
+      "executor": "ramping-vus",
+      "startVUs": 0,
+      "stages": [
+        { "duration": "5m", "target": 50 },
+        { "duration": "4h", "target": 50 },
+        { "duration": "5m", "target": 0 }
+      ],
+      "tags": { "test_type": "soak" }
+    }
+  }
+}

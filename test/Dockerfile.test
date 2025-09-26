@@ -1,0 +1,31 @@
+# Imagem base
+FROM node:18-alpine
+
+# Diretório de trabalho
+WORKDIR /app
+
+# Instalar dependências necessárias
+RUN apk add --no-cache python3 make g++ git
+
+# Copiar arquivos de configuração
+COPY package.json yarn.lock tsconfig.json jest.config.js jest.setup.js ./
+COPY test/package.json ./test/
+COPY packages/common/package.json ./packages/common/
+
+# Instalar dependências
+RUN yarn install --frozen-lockfile
+
+# Copiar código fonte
+COPY packages/common ./packages/common
+COPY test ./test
+
+# Compilar código
+RUN yarn workspace @common build
+RUN yarn workspace @fintech/test build
+
+# Configurar ambiente de teste
+ENV NODE_ENV=test
+ENV PATH="/app/node_modules/.bin:${PATH}"
+
+# Comando padrão
+CMD ["yarn", "test:integration"]

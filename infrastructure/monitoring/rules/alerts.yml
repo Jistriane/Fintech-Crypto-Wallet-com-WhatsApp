@@ -1,0 +1,109 @@
+groups:
+  - name: service_alerts
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} has been down for more than 1 minute"
+
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_seconds_total[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.job }}"
+          description: "{{ $labels.job }} has high CPU usage (> 80%) for more than 5 minutes"
+
+      - alert: HighMemoryUsage
+        expr: (process_resident_memory_bytes / container_memory_limit_bytes) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.job }}"
+          description: "{{ $labels.job }} has high memory usage (> 85%) for more than 5 minutes"
+
+  - name: whatsapp_alerts
+    rules:
+      - alert: WhatsAppSLABreach
+        expr: whatsapp_message_delivery_time_seconds > 10
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "WhatsApp SLA breach"
+          description: "WhatsApp message delivery time is above 10 seconds"
+
+      - alert: HighWhatsAppErrorRate
+        expr: rate(whatsapp_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High WhatsApp error rate"
+          description: "WhatsApp error rate is above 10% in the last 5 minutes"
+
+  - name: transaction_alerts
+    rules:
+      - alert: HighTransactionFailureRate
+        expr: rate(transaction_failures_total[5m]) / rate(transactions_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High transaction failure rate"
+          description: "Transaction failure rate is above 5% in the last 5 minutes"
+
+      - alert: LowTransactionThroughput
+        expr: rate(transactions_total[5m]) < 10
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low transaction throughput"
+          description: "Transaction throughput is below 10 tx/min for more than 10 minutes"
+
+  - name: kyc_alerts
+    rules:
+      - alert: HighKYCRejectionRate
+        expr: rate(kyc_rejections_total[1h]) / rate(kyc_submissions_total[1h]) > 0.2
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High KYC rejection rate"
+          description: "KYC rejection rate is above 20% in the last hour"
+
+      - alert: SlowKYCProcessing
+        expr: kyc_processing_duration_seconds > 300
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow KYC processing"
+          description: "KYC processing is taking more than 5 minutes"
+
+  - name: api_alerts
+    rules:
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API error rate"
+          description: "API error rate is above 5% in the last 5 minutes"
+
+      - alert: HighLatency
+        expr: http_request_duration_seconds{quantile="0.95"} > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API latency"
+          description: "95th percentile of API latency is above 2 seconds"

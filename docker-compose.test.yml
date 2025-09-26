@@ -1,0 +1,121 @@
+version: '3.8'
+
+services:
+  # Banco de dados de teste
+  postgres-test:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_DB: fintech_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+
+  # Redis de teste
+  redis-test:
+    image: redis:6-alpine
+    ports:
+      - "6380:6379"
+    command: redis-server --appendonly no --save ""
+    tmpfs:
+      - /data
+
+  # Serviço de KYC - Testes
+  kyc-test:
+    build:
+      context: .
+      dockerfile: ./services/kyc/Dockerfile
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@postgres-test:5432/fintech_test
+      REDIS_URL: redis://redis-test:6379
+      MASTER_KEY: test_master_key
+      JWT_SECRET: test_jwt_secret
+      NOTUS_API_KEY: test_notus_key
+    depends_on:
+      - postgres-test
+      - redis-test
+    command: yarn test
+
+  # Serviço DeFi - Testes
+  defi-test:
+    build:
+      context: .
+      dockerfile: ./services/defi/Dockerfile
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@postgres-test:5432/fintech_test
+      REDIS_URL: redis://redis-test:6379
+      MASTER_KEY: test_master_key
+      JWT_SECRET: test_jwt_secret
+      POLYGON_RPC_URL: http://mock-polygon:8545
+      BSC_RPC_URL: http://mock-bsc:8545
+    depends_on:
+      - postgres-test
+      - redis-test
+      - mock-polygon
+      - mock-bsc
+    command: yarn test
+
+  # Serviço Liquidity - Testes
+  liquidity-test:
+    build:
+      context: .
+      dockerfile: ./services/liquidity/Dockerfile
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@postgres-test:5432/fintech_test
+      REDIS_URL: redis://redis-test:6379
+      MASTER_KEY: test_master_key
+      JWT_SECRET: test_jwt_secret
+      POLYGON_RPC_URL: http://mock-polygon:8545
+      BSC_RPC_URL: http://mock-bsc:8545
+    depends_on:
+      - postgres-test
+      - redis-test
+      - mock-polygon
+      - mock-bsc
+    command: yarn test
+
+  # Mock da RPC Polygon
+  mock-polygon:
+    image: node:18-alpine
+    working_dir: /app
+    volumes:
+      - ./test/mocks/blockchain:/app
+    command: node polygon-mock.js
+    ports:
+      - "8545:8545"
+
+  # Mock da RPC BSC
+  mock-bsc:
+    image: node:18-alpine
+    working_dir: /app
+    volumes:
+      - ./test/mocks/blockchain:/app
+    command: node bsc-mock.js
+    ports:
+      - "8546:8545"
+
+  # Serviço de teste E2E
+  test-runner:
+    build:
+      context: .
+      dockerfile: ./test/Dockerfile.test
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@postgres-test:5432/fintech_test
+      REDIS_URL: redis://redis-test:6379
+      KYC_SERVICE_URL: http://kyc-test:3000
+      DEFI_SERVICE_URL: http://defi-test:3000
+      LIQUIDITY_SERVICE_URL: http://liquidity-test:3000
+    volumes:
+      - ./test:/app/test
+      - ./coverage:/app/coverage
+    depends_on:
+      - kyc-test
+      - defi-test
+      - liquidity-test
+    command: yarn test:integration

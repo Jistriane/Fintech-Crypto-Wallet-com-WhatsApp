@@ -1,0 +1,165 @@
+server:
+  global:
+    scrape_interval: 15s
+    evaluation_interval: 15s
+
+  scrape_configs:
+    - job_name: 'crypto-wallet'
+      ec2_sd_configs:
+        - region: us-east-1
+          port: 9090
+      relabel_configs:
+        - source_labels: [__meta_ec2_tag_Service]
+          target_label: service
+
+    - job_name: 'node-exporter'
+      static_configs:
+        - targets: ['localhost:9100']
+
+    - job_name: 'cadvisor'
+      static_configs:
+        - targets: ['localhost:8080']
+
+  alerting:
+    alertmanagers:
+      - static_configs:
+          - targets: ['localhost:9093']
+
+  rules:
+    - name: crypto-wallet
+      rules:
+        - alert: HighErrorRate
+          expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: Alta taxa de erros detectada
+            description: Mais de 10% das requisições estão retornando erro 5xx
+
+        - alert: HighLatency
+          expr: http_request_duration_seconds{quantile="0.95"} > 2
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Alta latência detectada
+            description: 95% das requisições estão demorando mais de 2 segundos
+
+        - alert: LowDiskSpace
+          expr: node_filesystem_avail_bytes / node_filesystem_size_bytes * 100 < 10
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Pouco espaço em disco
+            description: Menos de 10% de espaço em disco disponível
+
+        - alert: HighCPUUsage
+          expr: rate(container_cpu_usage_seconds_total[5m]) > 0.8
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Alto uso de CPU
+            description: Uso de CPU acima de 80%
+
+        - alert: HighMemoryUsage
+          expr: container_memory_usage_bytes / container_memory_limit_bytes * 100 > 90
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Alto uso de memória
+            description: Uso de memória acima de 90%
+
+        - alert: ContainerRestarting
+          expr: rate(kube_pod_container_status_restarts_total[5m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Container reiniciando
+            description: Container está reiniciando frequentemente
+
+        - alert: WhatsAppNotificationDelay
+          expr: whatsapp_notification_delay_seconds > 3
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Atraso nas notificações WhatsApp
+            description: Notificações WhatsApp estão demorando mais de 3 segundos
+
+        - alert: KYCProcessingDelay
+          expr: kyc_processing_duration_seconds > 300
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Atraso no processamento KYC
+            description: Processamento de KYC está demorando mais de 5 minutos
+
+        - alert: BlockchainSyncDelay
+          expr: blockchain_sync_delay_seconds > 60
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Atraso na sincronização blockchain
+            description: Sincronização com a blockchain está atrasada em mais de 1 minuto
+
+alertmanager:
+  config:
+    global:
+      resolve_timeout: 5m
+      slack_api_url: 'https://hooks.slack.com/services/xxx/yyy/zzz'
+
+    route:
+      group_by: ['alertname', 'service']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      receiver: 'slack-notifications'
+      routes:
+        - match:
+            severity: critical
+          receiver: 'slack-critical'
+          continue: true
+        - match:
+            severity: warning
+          receiver: 'slack-warnings'
+
+    receivers:
+      - name: 'slack-notifications'
+        slack_configs:
+          - channel: '#monitoring'
+            title: '{{ .GroupLabels.alertname }}'
+            text: '{{ .CommonAnnotations.description }}'
+            send_resolved: true
+
+      - name: 'slack-critical'
+        slack_configs:
+          - channel: '#alerts-critical'
+            title: '[CRÍTICO] {{ .GroupLabels.alertname }}'
+            text: '{{ .CommonAnnotations.description }}'
+            send_resolved: true
+
+      - name: 'slack-warnings'
+        slack_configs:
+          - channel: '#alerts-warnings'
+            title: '[AVISO] {{ .GroupLabels.alertname }}'
+            text: '{{ .CommonAnnotations.description }}'
+            send_resolved: true
+
+nodeExporter:
+  enabled: true
+
+kubeStateMetrics:
+  enabled: true
+
+grafana:
+  enabled: false # Usando Amazon Managed Grafana
+
+pushgateway:
+  enabled: true

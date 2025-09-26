@@ -1,0 +1,30 @@
+name: "CodeQL Config"
+
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+
+paths:
+  - services
+  - packages/common
+paths-ignore:
+  - '**/node_modules'
+  - '**/dist'
+  - '**/coverage'
+  - '**/*.test.ts'
+  - '**/*.spec.ts'
+  - '**/test'
+  - '**/tests'
+  - '**/__tests__'
+  - '**/__mocks__'
+
+query-filters:
+  - exclude:
+      problem.severity:
+        - warning
+        - recommendation
+  - exclude:
+      tags:
+        - security/insufficient-randomness
+        - security/insufficient-entropy
+

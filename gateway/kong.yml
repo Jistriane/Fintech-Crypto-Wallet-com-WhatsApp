@@ -1,0 +1,99 @@
+_format_version: "3.0"
+
+services:
+  - name: auth-service
+    url: http://auth-service:3001
+    routes:
+      - name: auth-routes
+        paths: ["/api/auth"]
+        methods: ["GET", "POST", "PUT", "DELETE"]
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 1000
+          - name: cors
+            config:
+              origins: ["*"]
+
+  - name: wallet-service
+    url: http://wallet-service:3002
+    routes:
+      - name: wallet-routes
+        paths: ["/api/wallet"]
+        methods: ["GET", "POST", "PUT", "DELETE"]
+        plugins:
+          - name: jwt
+          - name: rate-limiting
+            config:
+              minute: 200
+              hour: 5000
+          - name: request-size-limiting
+            config:
+              allowed_payload_size: 10
+
+  - name: defi-service
+    url: http://defi-service:3003
+    routes:
+      - name: defi-routes
+        paths: ["/api/defi"]
+        methods: ["GET", "POST", "PUT", "DELETE"]
+        plugins:
+          - name: jwt
+          - name: rate-limiting
+            config:
+              minute: 50
+              hour: 1000
+          - name: request-transformer
+            config:
+              add:
+                headers: ["X-Service-Name:defi"]
+
+  - name: kyc-service
+    url: http://kyc-service:3004
+    routes:
+      - name: kyc-routes
+        paths: ["/api/kyc"]
+        methods: ["GET", "POST", "PUT", "DELETE"]
+        plugins:
+          - name: jwt
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 2000
+          - name: request-transformer
+            config:
+              add:
+                headers: ["X-Service-Name:kyc"]
+
+  - name: liquidity-service
+    url: http://liquidity-service:3005
+    routes:
+      - name: liquidity-routes
+        paths: ["/api/liquidity"]
+        methods: ["GET", "POST", "PUT", "DELETE"]
+        plugins:
+          - name: jwt
+          - name: rate-limiting
+            config:
+              minute: 50
+              hour: 1000
+          - name: request-transformer
+            config:
+              add:
+                headers: ["X-Service-Name:liquidity"]
+
+consumers:
+  - username: mobile-app
+    jwt_secrets:
+      - key: mobile-app-key
+        secret: ${MOBILE_APP_JWT_SECRET}
+  - username: web-portal
+    jwt_secrets:
+      - key: web-portal-key
+        secret: ${WEB_PORTAL_JWT_SECRET}
+
+plugins:
+  - name: prometheus
+    config:
+      per_consumer: true

@@ -1,0 +1,32 @@
+{
+  "name": "fintech-crypto-wallet",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "services/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report",
+    "test:perf:generate-users": "ts-node tests/performance/generate-users.ts",
+    "test:perf:smoke": "k6 run -e ENV=local --config tests/performance/k6.config.json --scenario smoke tests/performance/load.test.ts",
+    "test:perf:load": "k6 run -e ENV=local --config tests/performance/k6.config.json --scenario load tests/performance/load.test.ts",
+    "test:perf:stress": "k6 run -e ENV=local --config tests/performance/k6.config.json --scenario stress tests/performance/load.test.ts",
+    "test:perf:spike": "k6 run -e ENV=local --config tests/performance/k6.config.json --scenario spike tests/performance/load.test.ts",
+    "test:perf:soak": "k6 run -e ENV=local --config tests/performance/k6.config.json --scenario soak tests/performance/load.test.ts"
+  },
+  "devDependencies": {
+    "turbo": "^1.10.0",
+    "typescript": "^5.0.0",
+    "eslint": "^8.40.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.0",
+    "@typescript-eslint/parser": "^5.59.0"
+  }
+}

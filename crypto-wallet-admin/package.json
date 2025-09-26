@@ -1,0 +1,38 @@
+{
+  "name": "crypto-wallet-admin",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.2.9",
+    "@heroicons/react": "^2.2.0",
+    "@hookform/resolvers": "^5.2.2",
+    "@react-email/components": "^0.5.5",
+    "@react-email/render": "^1.3.1",
+    "@react-email/tailwind": "^1.2.2",
+    "@tanstack/react-query": "^5.90.2",
+    "@tanstack/react-query-devtools": "^5.90.2",
+    "@tremor/react": "^3.18.7",
+    "@types/node": "^24.5.2",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "autoprefixer": "^10.4.21",
+    "axios": "^1.12.2",
+    "eslint": "^9.36.0",
+    "next": "^15.5.4",
+    "postcss": "^8.5.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.63.0",
+    "recharts": "^3.2.1",
+    "tailwindcss": "^4.1.13",
+    "typescript": "^5.9.2",
+    "zod": "^4.1.11",
+    "zustand": "^5.0.8"
+  }
+}

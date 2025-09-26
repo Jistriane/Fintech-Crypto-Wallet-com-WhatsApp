@@ -1,0 +1,237 @@
+Resources:
+  # Dashboards
+  MainDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: !Sub ${Environment}-main-dashboard
+      DashboardBody: !Sub |
+        {
+          "widgets": [
+            {
+              "type": "metric",
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  ["AWS/ECS", "CPUUtilization", "ServiceName", "${Environment}-kyc", "ClusterName", "${Environment}-cluster"],
+                  ["AWS/ECS", "CPUUtilization", "ServiceName", "${Environment}-defi", "ClusterName", "${Environment}-cluster"],
+                  ["AWS/ECS", "CPUUtilization", "ServiceName", "${Environment}-liquidity", "ClusterName", "${Environment}-cluster"]
+                ],
+                "period": 300,
+                "stat": "Average",
+                "region": "${AWS::Region}",
+                "title": "CPU Utilization"
+              }
+            },
+            {
+              "type": "metric",
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  ["AWS/ECS", "MemoryUtilization", "ServiceName", "${Environment}-kyc", "ClusterName", "${Environment}-cluster"],
+                  ["AWS/ECS", "MemoryUtilization", "ServiceName", "${Environment}-defi", "ClusterName", "${Environment}-cluster"],
+                  ["AWS/ECS", "MemoryUtilization", "ServiceName", "${Environment}-liquidity", "ClusterName", "${Environment}-cluster"]
+                ],
+                "period": 300,
+                "stat": "Average",
+                "region": "${AWS::Region}",
+                "title": "Memory Utilization"
+              }
+            }
+          ]
+        }
+
+  # Alarmes
+  CPUAlarmKYC:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${Environment}-kyc-cpu-high
+      AlarmDescription: CPU usage is high for KYC service
+      MetricName: CPUUtilization
+      Namespace: AWS/ECS
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: ServiceName
+          Value: !Sub ${Environment}-kyc
+        - Name: ClusterName
+          Value: !Sub ${Environment}-cluster
+      AlarmActions:
+        - !Ref AlertSNSTopic
+
+  MemoryAlarmKYC:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${Environment}-kyc-memory-high
+      AlarmDescription: Memory usage is high for KYC service
+      MetricName: MemoryUtilization
+      Namespace: AWS/ECS
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: ServiceName
+          Value: !Sub ${Environment}-kyc
+        - Name: ClusterName
+          Value: !Sub ${Environment}-cluster
+      AlarmActions:
+        - !Ref AlertSNSTopic
+
+  CPUAlarmDeFi:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${Environment}-defi-cpu-high
+      AlarmDescription: CPU usage is high for DeFi service
+      MetricName: CPUUtilization
+      Namespace: AWS/ECS
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: ServiceName
+          Value: !Sub ${Environment}-defi
+        - Name: ClusterName
+          Value: !Sub ${Environment}-cluster
+      AlarmActions:
+        - !Ref AlertSNSTopic
+
+  MemoryAlarmDeFi:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${Environment}-defi-memory-high
+      AlarmDescription: Memory usage is high for DeFi service
+      MetricName: MemoryUtilization
+      Namespace: AWS/ECS
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: ServiceName
+          Value: !Sub ${Environment}-defi
+        - Name: ClusterName
+          Value: !Sub ${Environment}-cluster
+      AlarmActions:
+        - !Ref AlertSNSTopic
+
+  CPUAlarmLiquidity:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${Environment}-liquidity-cpu-high
+      AlarmDescription: CPU usage is high for Liquidity service
+      MetricName: CPUUtilization
+      Namespace: AWS/ECS
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: ServiceName
+          Value: !Sub ${Environment}-liquidity
+        - Name: ClusterName
+          Value: !Sub ${Environment}-cluster
+      AlarmActions:
+        - !Ref AlertSNSTopic
+
+  MemoryAlarmLiquidity:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${Environment}-liquidity-memory-high
+      AlarmDescription: Memory usage is high for Liquidity service
+      MetricName: MemoryUtilization
+      Namespace: AWS/ECS
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: ServiceName
+          Value: !Sub ${Environment}-liquidity
+        - Name: ClusterName
+          Value: !Sub ${Environment}-cluster
+      AlarmActions:
+        - !Ref AlertSNSTopic
+
+  # SNS Topic para alertas
+  AlertSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub ${Environment}-alerts
+      DisplayName: !Sub ${Environment} Alerts
+
+  # Métricas personalizadas
+  WhatsAppSLAMetric:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${Environment}-whatsapp-sla-breach
+      AlarmDescription: WhatsApp notification SLA breach
+      MetricName: WhatsAppDeliveryTime
+      Namespace: Custom/WhatsApp
+      Statistic: Average
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 10
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertSNSTopic
+
+  TransactionVolumeMetric:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${Environment}-transaction-volume-high
+      AlarmDescription: Transaction volume is higher than expected
+      MetricName: TransactionCount
+      Namespace: Custom/Transactions
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 1000
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertSNSTopic
+
+  # Log Metrics
+  ErrorLogMetric:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub /ecs/${Environment}
+      FilterPattern: ERROR
+      MetricTransformations:
+        - MetricValue: 1
+          MetricNamespace: Custom/Errors
+          MetricName: ErrorCount
+
+  ErrorCountAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${Environment}-error-count-high
+      AlarmDescription: High number of errors in logs
+      MetricName: ErrorCount
+      Namespace: Custom/Errors
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 10
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertSNSTopic
+
+Outputs:
+  DashboardURL:
+    Description: URL do Dashboard principal
+    Value: !Sub https://${AWS::Region}.console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#dashboards:name=${Environment}-main-dashboard
+
+  AlertTopicARN:
+    Description: ARN do tópico SNS para alertas
+    Value: !Ref AlertSNSTopic
