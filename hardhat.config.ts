@@ -1,7 +1,7 @@
 import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
-import "@nomiclabs/hardhat-ethers";
-import "@nomiclabs/hardhat-etherscan";
+import "@nomicfoundation/hardhat-ethers";
+import "@nomicfoundation/hardhat-verify";
+import "@openzeppelin/hardhat-upgrades";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 import * as dotenv from "dotenv";
@@ -19,30 +19,36 @@ const config: HardhatUserConfig = {
     }
   },
   networks: {
+    hardhat: {
+      chainId: 31337
+    },
     polygon: {
       url: process.env.POLYGON_RPC_URL || "",
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : []
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: 137
     },
     bsc: {
       url: process.env.BSC_RPC_URL || "",
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : []
-    },
-    arbitrum: {
-      url: process.env.ARBITRUM_RPC_URL || "",
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : []
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: 56
     }
+  },
+  gasReporter: {
+    enabled: process.env.REPORT_GAS !== undefined,
+    currency: "USD",
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY
   },
   etherscan: {
     apiKey: {
       polygon: process.env.POLYGONSCAN_API_KEY || "",
-      bsc: process.env.BSCSCAN_API_KEY || "",
-      arbitrum: process.env.ARBISCAN_API_KEY || ""
+      bsc: process.env.BSCSCAN_API_KEY || ""
     }
   },
-  gasReporter: {
-    enabled: true,
-    currency: "USD",
-    coinmarketcap: process.env.COINMARKETCAP_API_KEY
+  paths: {
+    sources: "./contracts",
+    tests: "./test",
+    cache: "./cache",
+    artifacts: "./artifacts"
   }
 };
 

@@ -1,56 +1,64 @@
-import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { TransactionType, TransactionStatus } from '../../../types';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn } from 'typeorm';
 import { WalletEntity } from './WalletEntity';
+import { Network, TransactionStatus, TransactionType } from '../../../types';
 
 @Entity('transactions')
 export class TransactionEntity {
-  @PrimaryColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-  @Column('uuid')
-  walletId: string;
-
-  @Column({
-    type: 'enum',
-    enum: ['SWAP', 'TRANSFER', 'LIQUIDITY_ADD', 'LIQUIDITY_REMOVE', 'FIAT_DEPOSIT', 'FIAT_WITHDRAWAL']
-  })
-  type: TransactionType;
+  @Column()
+  walletId!: string;
 
   @Column({
     type: 'enum',
-    enum: ['PENDING', 'PROCESSING', 'CONFIRMED', 'FAILED', 'CANCELLED'],
-    default: 'PENDING'
+    enum: TransactionType,
   })
-  status: TransactionStatus;
+  type!: TransactionType;
 
-  @Column({ length: 42 })
-  fromAddress: string;
+  @Column({
+    type: 'enum',
+    enum: TransactionStatus,
+  })
+  status!: TransactionStatus;
 
-  @Column({ length: 42 })
-  toAddress: string;
+  @Column()
+  fromAddress!: string;
 
-  @Column({ length: 42 })
-  tokenAddress: string;
+  @Column()
+  toAddress!: string;
 
-  @Column('numeric', { precision: 36, scale: 18 })
-  amount: string;
+  @Column()
+  tokenAddress!: string;
 
-  @Column({ length: 66, nullable: true })
-  hash?: string;
+  @Column('decimal', { precision: 36, scale: 18 })
+  amount!: string;
 
-  @Column({ type: 'text', nullable: true })
-  failureReason?: string;
+  @Column({
+    type: 'enum',
+    enum: Network,
+  })
+  network!: Network;
 
   @Column({ nullable: true })
-  confirmedAt?: Date;
+  hash?: string;
+
+  @Column({ nullable: true })
+  error?: string;
 
   @ManyToOne(() => WalletEntity, wallet => wallet.transactions)
   @JoinColumn({ name: 'walletId' })
-  wallet: WalletEntity;
+  wallet!: WalletEntity;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
+
+  constructor(partial?: Partial<TransactionEntity>) {
+    if (partial) {
+      Object.assign(this, partial);
+    }
+  }
 }

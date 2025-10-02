@@ -1,13 +1,14 @@
-import { ethers, BigNumber } from 'ethers';
-import { Transaction } from '../entities/Transaction';
+import { BigNumberish, formatUnits } from 'ethers';
+import { ILogger } from '../interfaces/ILogger';
 import { ITransactionRepository } from '../repositories/ITransactionRepository';
-import { WalletService } from './WalletService';
-import { TransactionType, Token } from '../../types';
+import { IWalletRepository } from '../repositories/IWalletRepository';
+import { Network, TransactionStatus, TransactionType } from '../../types';
 
 export class TransactionService {
   constructor(
     private readonly transactionRepository: ITransactionRepository,
-    private readonly walletService: WalletService
+    private readonly walletRepository: IWalletRepository,
+    private readonly logger: ILogger
   ) {}
 
   async createTransaction(
@@ -15,57 +16,103 @@ export class TransactionService {
     type: TransactionType,
     fromAddress: string,
     toAddress: string,
-    token: Token,
-    amount: BigNumber
-  ): Promise<Transaction> {
-    const transaction = new Transaction(
-      ethers.utils.id(Date.now().toString()), // ID único
-      walletId,
-      type,
-      'PENDING',
-      fromAddress,
-      toAddress,
-      token,
-      amount,
-      undefined, // hash
-      undefined, // failureReason
-      new Date(),
-      undefined, // confirmedAt
-      new Date()
-    );
+    tokenAddress: string,
+    amount: BigNumberish,
+    network: Network
+  ): Promise<string> {
+    try {
+      const transaction = await this.transactionRepository.save({
+        walletId,
+        type,
+        status: TransactionStatus.PENDING,
+        fromAddress,
+        toAddress,
+        tokenAddress,
+        amount: formatUnits(amount, 18),
+        network,
+      });
 
-    return await this.transactionRepository.create(transaction);
-  }
-
-  async confirmTransaction(transactionId: string, hash: string): Promise<Transaction> {
-    const transaction = await this.transactionRepository.findById(transactionId);
-    if (!transaction) {
-      throw new Error('Transaction not found');
+      return transaction.id;
+    } catch (error) {
+      this.logger.error('Error creating transaction', { error });
+      throw error;
     }
-
-    transaction.confirm(hash);
-    return await this.transactionRepository.update(transaction);
   }
 
-  async failTransaction(transactionId: string, reason: string): Promise<Transaction> {
-    const transaction = await this.transactionRepository.findById(transactionId);
-    if (!transaction) {
-      throw new Error('Transaction not found');
+  async getTransaction(id: string): Promise<any> {
+    try {
+      return await this.transactionRepository.findOne(id);
+    } catch (error) {
+      this.logger.error('Error getting transaction', { error });
+      throw error;
     }
-
-    transaction.fail(reason);
-    return await this.transactionRepository.update(transaction);
   }
 
-  async getTransactionsByWallet(walletId: string): Promise<Transaction[]> {
-    return await this.transactionRepository.findByWalletId(walletId);
+  async getTransactionsByWallet(walletId: string): Promise<any[]> {
+    try {
+      return await this.transactionRepository.find({ walletId });
+    } catch (error) {
+      this.logger.error('Error getting transactions by wallet', { error });
+      throw error;
+    }
   }
 
-  async getPendingTransactions(): Promise<Transaction[]> {
-    return await this.transactionRepository.findPending();
+  async updateTransactionStatus(
+    id: string,
+    status: TransactionStatus,
+    hash?: string,
+    error?: string
+  ): Promise<void> {
+    try {
+      await this.transactionRepository.update(id, {
+        status,
+        hash,
+        error,
+      });
+    } catch (error) {
+      this.logger.error('Error updating transaction status', { error });
+      throw error;
+    }
   }
 
-  async getTransactionsByDateRange(startDate: Date, endDate: Date): Promise<Transaction[]> {
-    return await this.transactionRepository.findByDateRange(startDate, endDate);
+  async getTransactionHistory(
+    walletId: string,
+    startDate: Date,
+    endDate: Date
+  ): Promise<any[]> {
+    try {
+      return await this.transactionRepository.find({
+        walletId,
+        createdAt: {
+          $gte: startDate,
+          $lte: endDate,
+        },
+      });
+    } catch (error) {
+      this.logger.error('Error getting transaction history', { error });
+      throw error;
+    }
+  }
+
+  async getPendingTransactions(): Promise<any[]> {
+    try {
+      return await this.transactionRepository.find({
+        status: TransactionStatus.PENDING,
+      });
+    } catch (error) {
+      this.logger.error('Error getting pending transactions', { error });
+      throw error;
+    }
+  }
+
+  async getProcessingTransactions(): Promise<any[]> {
+    try {
+      return await this.transactionRepository.find({
+        status: TransactionStatus.PROCESSING,
+      });
+    } catch (error) {
+      this.logger.error('Error getting processing transactions', { error });
+      throw error;
+    }
   }
 }

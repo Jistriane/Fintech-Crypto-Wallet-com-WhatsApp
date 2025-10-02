@@ -1,45 +1,51 @@
-import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
-import { Network } from '../../../types';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, JoinColumn } from 'typeorm';
 import { UserEntity } from './UserEntity';
 import { TransactionEntity } from './TransactionEntity';
 import { TokenBalanceEntity } from './TokenBalanceEntity';
+import { Network } from '../../../types';
 
 @Entity('wallets')
 export class WalletEntity {
-  @PrimaryColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-  @Column('uuid')
-  userId: string;
+  @Column()
+  userId!: string;
 
-  @Column({ length: 42, unique: true })
-  address: string;
+  @Column()
+  address!: string;
 
-  @Column({ type: 'text' })
-  privateKeyEncrypted: string;
+  @Column()
+  privateKeyEncrypted!: string;
 
   @Column({
     type: 'enum',
-    enum: ['POLYGON', 'BSC'],
+    enum: Network,
   })
-  network: Network;
+  network!: Network;
 
   @Column({ default: true })
-  isActive: boolean;
+  isActive!: boolean;
 
   @ManyToOne(() => UserEntity, user => user.wallets)
   @JoinColumn({ name: 'userId' })
-  user: UserEntity;
+  user!: UserEntity;
 
   @OneToMany(() => TransactionEntity, transaction => transaction.wallet)
-  transactions: TransactionEntity[];
+  transactions!: TransactionEntity[];
 
   @OneToMany(() => TokenBalanceEntity, balance => balance.wallet)
-  balances: TokenBalanceEntity[];
+  balances!: TokenBalanceEntity[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
+
+  constructor(partial?: Partial<WalletEntity>) {
+    if (partial) {
+      Object.assign(this, partial);
+    }
+  }
 }

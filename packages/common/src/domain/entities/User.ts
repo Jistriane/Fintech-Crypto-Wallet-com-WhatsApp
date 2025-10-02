@@ -4,42 +4,53 @@ export class User {
   constructor(
     public readonly id: string,
     public readonly phone: string,
-    public email: string | undefined,
-    public kycStatus: KYCStatus,
-    public kycLevel: KYCLevel,
-    public whatsappOptIn: boolean,
-    public readonly createdAt: Date,
-    public updatedAt: Date
+    private _kycStatus: KYCStatus,
+    private _kycLevel: KYCLevel,
+    private _whatsappOptIn: boolean,
+    public readonly createdAt: Date = new Date(),
+    public readonly updatedAt: Date = new Date()
   ) {}
 
-  public updateKYCStatus(status: KYCStatus): void {
-    this.kycStatus = status;
-    this.updatedAt = new Date();
+  get kycStatus(): KYCStatus {
+    return this._kycStatus;
   }
 
-  public updateKYCLevel(level: KYCLevel): void {
-    this.kycLevel = level;
-    this.updatedAt = new Date();
+  get kycLevel(): KYCLevel {
+    return this._kycLevel;
   }
 
-  public updateWhatsAppOptIn(optIn: boolean): void {
-    this.whatsappOptIn = optIn;
-    this.updatedAt = new Date();
+  get whatsappOptIn(): boolean {
+    return this._whatsappOptIn;
   }
 
-  public updateEmail(email: string): void {
-    this.email = email;
-    this.updatedAt = new Date();
+  updateKYCStatus(status: KYCStatus): void {
+    this._kycStatus = status;
   }
 
-  public canPerformOperation(operation: string): boolean {
-    const allowedOperations = {
-      LEVEL_0: [],
-      LEVEL_1: ['SWAP_BASIC', 'SELF_TRANSFER'],
-      LEVEL_2: ['ALL_SWAPS', 'THIRD_PARTY_TRANSFER', 'LIQUIDITY_POOLS', 'FIAT_CONVERSION'],
-      LEVEL_3: ['ALL_OPERATIONS', 'INSTITUTIONAL']
-    };
+  updateKYCLevel(level: KYCLevel): void {
+    this._kycLevel = level;
+  }
 
-    return allowedOperations[this.kycLevel].includes(operation);
+  setWhatsAppOptIn(optIn: boolean): void {
+    this._whatsappOptIn = optIn;
+  }
+
+  canTransact(): boolean {
+    return this._kycStatus === KYCStatus.APPROVED;
+  }
+
+  getTransactionLimit(): number {
+    switch (this._kycLevel) {
+      case KYCLevel.LEVEL_0:
+        return 0;
+      case KYCLevel.LEVEL_1:
+        return 1000;
+      case KYCLevel.LEVEL_2:
+        return 10000;
+      case KYCLevel.LEVEL_3:
+        return 100000;
+      default:
+        return 0;
+    }
   }
 }

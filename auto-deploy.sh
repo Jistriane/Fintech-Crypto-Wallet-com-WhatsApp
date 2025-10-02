@@ -44,3 +44,6 @@ rm ~/.git-credentials
 git config --global --unset credential.helper
 
 echo "✅ Projeto enviado com sucesso para $REPO_URL"
+
+
+

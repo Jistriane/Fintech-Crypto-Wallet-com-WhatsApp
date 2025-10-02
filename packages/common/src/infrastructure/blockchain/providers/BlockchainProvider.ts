@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { JsonRpcProvider, Contract, formatUnits, parseUnits, TransactionRequest, TransactionReceipt, Network as EthersNetwork } from 'ethers';
 import { Network } from '../../../types';
 import { NETWORK_LIMITS } from '../../../constants/kyc';
 
@@ -12,7 +12,7 @@ export interface BlockchainConfig {
 }
 
 export class BlockchainProvider {
-  private static providers: Record<Network, ethers.providers.JsonRpcProvider> = {} as any;
+  private static providers: Record<Network, JsonRpcProvider> = {} as any;
   private static configs: Record<Network, BlockchainConfig> = {
     POLYGON: {
       rpcUrl: process.env.POLYGON_RPC_URL!,
@@ -32,15 +32,15 @@ export class BlockchainProvider {
     }
   };
 
-  static getProvider(network: Network): ethers.providers.JsonRpcProvider {
+  static getProvider(network: Network): JsonRpcProvider {
     if (!BlockchainProvider.providers[network]) {
       const config = BlockchainProvider.configs[network];
-      BlockchainProvider.providers[network] = new ethers.providers.JsonRpcProvider(
+      BlockchainProvider.providers[network] = new JsonRpcProvider(
         config.rpcUrl,
         {
           name: network,
           chainId: config.chainId
-        }
+        } as EthersNetwork
       );
     }
 
@@ -51,15 +51,15 @@ export class BlockchainProvider {
     return BlockchainProvider.configs[network];
   }
 
-  static async getGasPrice(network: Network): Promise<ethers.BigNumber> {
+  static async getGasPrice(network: Network): Promise<bigint> {
     const provider = BlockchainProvider.getProvider(network);
-    return await provider.getGasPrice();
+    return await provider.getFeeData().then(fees => fees.gasPrice || 0n);
   }
 
   static async estimateGas(
     network: Network,
-    transaction: ethers.providers.TransactionRequest
-  ): Promise<ethers.BigNumber> {
+    transaction: TransactionRequest
+  ): Promise<bigint> {
     const provider = BlockchainProvider.getProvider(network);
     return await provider.estimateGas(transaction);
   }
@@ -67,7 +67,7 @@ export class BlockchainProvider {
   static async getTransactionReceipt(
     network: Network,
     hash: string
-  ): Promise<ethers.providers.TransactionReceipt | null> {
+  ): Promise<TransactionReceipt | null> {
     const provider = BlockchainProvider.getProvider(network);
     return await provider.getTransactionReceipt(hash);
   }
@@ -75,7 +75,7 @@ export class BlockchainProvider {
   static async waitForTransaction(
     network: Network,
     hash: string
-  ): Promise<ethers.providers.TransactionReceipt> {
+  ): Promise<TransactionReceipt> {
     const provider = BlockchainProvider.getProvider(network);
     const config = BlockchainProvider.configs[network];
     
@@ -88,7 +88,7 @@ export class BlockchainProvider {
   static async getBalance(
     network: Network,
     address: string
-  ): Promise<ethers.BigNumber> {
+  ): Promise<bigint> {
     const provider = BlockchainProvider.getProvider(network);
     return await provider.getBalance(address);
   }
@@ -97,9 +97,9 @@ export class BlockchainProvider {
     network: Network,
     tokenAddress: string,
     walletAddress: string
-  ): Promise<ethers.BigNumber> {
+  ): Promise<bigint> {
     const provider = BlockchainProvider.getProvider(network);
-    const tokenContract = new ethers.Contract(
+    const tokenContract = new Contract(
       tokenAddress,
       ['function balanceOf(address) view returns (uint256)'],
       provider
@@ -110,12 +110,12 @@ export class BlockchainProvider {
 
   static validateTransaction(
     network: Network,
-    value: ethers.BigNumber
+    value: bigint
   ): boolean {
     const config = BlockchainProvider.configs[network];
-    const maxValue = ethers.utils.parseUnits(config.maxSingleTransaction, 18);
+    const maxValue = parseUnits(config.maxSingleTransaction, 18);
     
-    return value.lte(maxValue);
+    return value <= maxValue;
   }
 
   static async isContractAddress(

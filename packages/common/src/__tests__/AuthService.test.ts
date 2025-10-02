@@ -1,269 +1,195 @@
 import { AuthService } from '../infrastructure/security/AuthService';
-import { IUserRepository } from '../domain/repositories/IUserRepository';
-import { NotusWhatsAppService } from '../../../services/kyc/src/infrastructure/whatsapp/NotusWhatsAppService';
-import { User } from '../domain/entities/User';
-import { RedisCache } from '../infrastructure/cache/RedisCache';
+import { KYCLevel, KYCStatus, TokenPayload } from '../types';
+import { mockLogger, mockUserRepository, mockWhatsAppService, testUser } from './setup';
 
 describe('AuthService', () => {
   let authService: AuthService;
-  let userRepository: jest.Mocked<IUserRepository>;
-  let whatsappService: jest.Mocked<NotusWhatsAppService>;
+
+  const mockRedisClient = {
+    get: jest.fn(),
+    set: jest.fn(),
+    del: jest.fn(),
+  };
 
   beforeEach(() => {
-    userRepository = {
-      findByPhone: jest.fn(),
-      findById: jest.fn()
-    } as any;
+    jest.clearAllMocks();
+    mockRedisClient.get.mockResolvedValue(null);
+    mockRedisClient.set.mockResolvedValue('OK');
+    mockUserRepository.findOne.mockResolvedValue(testUser);
 
-    whatsappService = {
-      send2FACode: jest.fn()
-    } as any;
-
-    authService = new AuthService(userRepository, whatsappService);
+    authService = new AuthService(
+      mockUserRepository,
+      mockRedisClient,
+      mockWhatsAppService,
+      mockLogger,
+      'test_secret',
+      'test_master_key'
+    );
   });
 
-  describe('authenticate', () => {
-    it('should start authentication process for valid user', async () => {
-      // Arrange
-      const phone = '+5511999999999';
-      const deviceId = 'device123';
-      const ip = '127.0.0.1';
-
-      const mockUser = new User(
-        'user123',
-        phone,
-        'test@example.com',
-        'APPROVED',
-        'LEVEL_2',
-        true,
-        new Date(),
-        new Date()
-      );
-
-      userRepository.findByPhone.mockResolvedValue(mockUser);
-
-      // Act
-      const result = await authService.authenticate(phone, deviceId, ip);
-
-      // Assert
-      expect(result).toBeDefined();
-      expect(result.sessionId).toBeDefined();
-      expect(result.token).toBe(''); // Token vazio até 2FA
-      expect(whatsappService.send2FACode).toHaveBeenCalled();
-    });
-
-    it('should throw error for invalid user', async () => {
-      // Arrange
-      const phone = '+5511999999999';
-      const deviceId = 'device123';
-      const ip = '127.0.0.1';
-
-      userRepository.findByPhone.mockResolvedValue(null);
-
-      // Act & Assert
-      await expect(authService.authenticate(phone, deviceId, ip))
-        .rejects
-        .toThrow('User not found');
-    });
-
-    it('should block after too many failed attempts', async () => {
-      // Arrange
-      const phone = '+5511999999999';
-      const deviceId = 'device123';
-      const ip = '127.0.0.1';
-
-      userRepository.findByPhone.mockResolvedValue(null);
-
-      // Simular muitas tentativas falhas
-      for (let i = 0; i < 5; i++) {
-        try {
-          await authService.authenticate(phone, deviceId, ip);
-        } catch {}
-      }
-
-      // Act & Assert
-      await expect(authService.authenticate(phone, deviceId, ip))
-        .rejects
-        .toThrow('Too many failed attempts');
-    });
-  });
-
-  describe('verify2FA', () => {
-    it('should verify 2FA code successfully', async () => {
-      // Arrange
-      const sessionId = 'session123';
-      const code = '123456';
-      const mockSession = {
-        userId: 'user123',
-        phone: '+5511999999999',
-        deviceId: 'device123',
-        ip: '127.0.0.1'
-      };
-
-      const mockUser = new User(
-        'user123',
-        '+5511999999999',
-        'test@example.com',
-        'APPROVED',
-        'LEVEL_2',
-        true,
-        new Date(),
-        new Date()
-      );
-
-      // Mock do Redis para sessão e código
-      jest.spyOn(RedisCache, 'get')
-        .mockImplementation((key: string) => {
-          if (key.includes('session')) return Promise.resolve(mockSession);
-          if (key.includes('2fa')) return Promise.resolve(code);
-          return Promise.resolve(null);
-        });
-
-      userRepository.findById.mockResolvedValue(mockUser);
-
-      // Act
-      const result = await authService.verify2FA(sessionId, code);
-
-      // Assert
-      expect(result).toBeDefined();
-      expect(result.token).toBeDefined();
-    });
-
-    it('should throw error for invalid code', async () => {
-      // Arrange
-      const sessionId = 'session123';
-      const code = '123456';
-      const wrongCode = '654321';
-      const mockSession = {
-        userId: 'user123',
-        phone: '+5511999999999',
-        deviceId: 'device123',
-        ip: '127.0.0.1'
-      };
-
-      // Mock do Redis
-      jest.spyOn(RedisCache, 'get')
-        .mockImplementation((key: string) => {
-          if (key.includes('session')) return Promise.resolve(mockSession);
-          if (key.includes('2fa')) return Promise.resolve(code);
-          return Promise.resolve(null);
-        });
-
-      // Act & Assert
-      await expect(authService.verify2FA(sessionId, wrongCode))
-        .rejects
-        .toThrow('Invalid code');
-    });
-  });
-
-  describe('validateToken', () => {
-    it('should validate token successfully', async () => {
-      // Arrange
-      const mockPayload = {
-        userId: 'user123',
-        kycLevel: 'LEVEL_2',
-        phone: '+5511999999999',
-        sessionId: 'session123'
-      };
-
-      const token = authService['generateToken'](mockPayload);
-      const mockSession = {
-        userId: 'user123',
-        kycLevel: 'LEVEL_2',
-        phone: '+5511999999999',
-        deviceId: 'device123',
+  describe('validateSession', () => {
+    it('should validate a valid session', async () => {
+      const session = {
+        userId: testUser.id,
+        deviceId: 'test_device',
         ip: '127.0.0.1',
+        kycLevel: KYCLevel.LEVEL_2,
+        phone: testUser.phone,
         createdAt: new Date(),
-        lastActivity: new Date()
+        lastActivity: new Date(),
       };
 
-      // Mock do Redis
-      jest.spyOn(RedisCache, 'get')
-        .mockImplementation((key: string) => {
-          if (key.includes('session')) return Promise.resolve(mockSession);
-          return Promise.resolve(null);
-        });
+      mockRedisClient.get.mockResolvedValue(JSON.stringify(session));
 
-      // Act
-      const result = await authService.validateToken(token);
+      const result = await authService.validateSession(
+        'test_token',
+        'test_device',
+        '127.0.0.1'
+      );
 
-      // Assert
       expect(result).toBeDefined();
-      expect(result.userId).toBe(mockPayload.userId);
-      expect(result.kycLevel).toBe(mockPayload.kycLevel);
+      expect(result?.userId).toBe(session.userId);
+      expect(result?.deviceId).toBe(session.deviceId);
+      expect(result?.ip).toBe(session.ip);
     });
 
-    it('should throw error for invalid token', async () => {
-      // Arrange
-      const token = 'invalid_token';
+    it('should return null for invalid session', async () => {
+      mockRedisClient.get.mockResolvedValue(null);
 
-      // Act & Assert
-      await expect(authService.validateToken(token))
-        .rejects
-        .toThrow('Invalid token');
+      const result = await authService.validateSession(
+        'invalid_token',
+        'test_device',
+        '127.0.0.1'
+      );
+
+      expect(result).toBeNull();
     });
 
-    it('should throw error for expired session', async () => {
-      // Arrange
-      const mockPayload = {
-        userId: 'user123',
-        kycLevel: 'LEVEL_2',
-        phone: '+5511999999999',
-        sessionId: 'session123'
+    it('should return null for mismatched device or IP', async () => {
+      const session = {
+        userId: testUser.id,
+        deviceId: 'other_device',
+        ip: '192.168.1.1',
+        kycLevel: KYCLevel.LEVEL_2,
+        phone: testUser.phone,
+        createdAt: new Date(),
+        lastActivity: new Date(),
       };
 
-      const token = authService['generateToken'](mockPayload);
+      mockRedisClient.get.mockResolvedValue(JSON.stringify(session));
 
-      // Mock do Redis retornando null (sessão expirada)
-      jest.spyOn(RedisCache, 'get').mockResolvedValue(null);
+      const result = await authService.validateSession(
+        'test_token',
+        'test_device',
+        '127.0.0.1'
+      );
 
-      // Act & Assert
-      await expect(authService.validateToken(token))
-        .rejects
-        .toThrow('Invalid session');
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('createSession', () => {
+    it('should create a new session', async () => {
+      const payload: TokenPayload = {
+        userId: testUser.id,
+        kycLevel: KYCLevel.LEVEL_2,
+        phone: testUser.phone,
+        sessionId: 'test_session',
+      };
+
+      mockRedisClient.set.mockResolvedValue('OK');
+      jest.spyOn(authService as any, 'generateToken').mockReturnValue('test_token');
+
+      const result = await authService.createSession(
+        payload,
+        'test_device',
+        '127.0.0.1'
+      );
+
+      expect(result).toBeDefined();
+      expect(result.token).toBe('test_token');
+      expect(result.expiresIn).toBeDefined();
+    });
+
+    it('should fail if Redis fails', async () => {
+      const payload: TokenPayload = {
+        userId: testUser.id,
+        kycLevel: KYCLevel.LEVEL_2,
+        phone: testUser.phone,
+        sessionId: 'test_session',
+      };
+
+      mockRedisClient.set.mockRejectedValue(new Error('Redis error'));
+
+      await expect(
+        authService.createSession(payload, 'test_device', '127.0.0.1')
+      ).rejects.toThrow();
+    });
+
+    it('should fail if token generation fails', async () => {
+      const payload: TokenPayload = {
+        userId: testUser.id,
+        kycLevel: KYCLevel.LEVEL_2,
+        phone: testUser.phone,
+        sessionId: 'test_session',
+      };
+
+      jest.spyOn(authService as any, 'generateToken').mockImplementation(() => {
+        throw new Error('Token error');
+      });
+
+      await expect(
+        authService.createSession(payload, 'test_device', '127.0.0.1')
+      ).rejects.toThrow();
     });
   });
 
   describe('revokeSession', () => {
-    it('should revoke session successfully', async () => {
-      // Arrange
-      const sessionId = 'session123';
-      const mockDel = jest.spyOn(RedisCache, 'del');
+    it('should revoke an existing session', async () => {
+      mockRedisClient.del.mockResolvedValue(1);
 
-      // Act
-      await authService.revokeSession(sessionId);
+      const result = await authService.revokeSession('test_token');
 
-      // Assert
-      expect(mockDel).toHaveBeenCalled();
+      expect(result).toBe(true);
+      expect(mockRedisClient.del).toHaveBeenCalledWith('session:test_token');
     });
   });
 
-  describe('revokeAllSessions', () => {
-    it('should revoke all user sessions', async () => {
-      // Arrange
-      const userId = 'user123';
-      const mockKeys = ['session:1', 'session:2'];
-      const mockSessions = [
-        { userId: 'user123' },
-        { userId: 'user123' }
-      ];
+  describe('refreshSession', () => {
+    it('should refresh a valid session', async () => {
+      const session = {
+        userId: testUser.id,
+        deviceId: 'test_device',
+        ip: '127.0.0.1',
+        kycLevel: KYCLevel.LEVEL_2,
+        phone: testUser.phone,
+        createdAt: new Date(),
+        lastActivity: new Date(),
+      };
 
-      // Mock do Redis
-      jest.spyOn(RedisCache.getInstance(), 'keys')
-        .mockResolvedValue(mockKeys);
-      
-      jest.spyOn(RedisCache, 'get')
-        .mockImplementation((key: string, index: number) => 
-          Promise.resolve(mockSessions[index])
-        );
+      mockRedisClient.get.mockResolvedValue(JSON.stringify(session));
+      mockRedisClient.set.mockResolvedValue('OK');
+      jest.spyOn(authService as any, 'generateToken').mockReturnValue('new_token');
 
-      const mockDel = jest.spyOn(RedisCache, 'del');
+      const result = await authService.refreshSession(
+        'test_token',
+        'test_device',
+        '127.0.0.1'
+      );
 
-      // Act
-      await authService.revokeAllSessions(userId);
+      expect(result).toBeDefined();
+      expect(result.token).toBe('new_token');
+      expect(result.expiresIn).toBeDefined();
+    });
+  });
 
-      // Assert
-      expect(mockDel).toHaveBeenCalledTimes(mockKeys.length);
+  describe('generateNonce', () => {
+    it('should generate a valid nonce', async () => {
+      const nonce = await authService.generateNonce();
+
+      expect(nonce).toBeDefined();
+      expect(typeof nonce).toBe('string');
+      expect(nonce.length).toBeGreaterThan(0);
     });
   });
 });

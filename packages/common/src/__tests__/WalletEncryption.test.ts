@@ -1,128 +1,84 @@
 import { WalletEncryption } from '../infrastructure/security/WalletEncryption';
+import { mockLogger } from './setup';
 
 describe('WalletEncryption', () => {
-  const originalEnv = process.env;
+  let walletEncryption: WalletEncryption;
 
   beforeEach(() => {
-    process.env = {
-      ...originalEnv,
-      MASTER_KEY: 'test_master_key_12345678901234567890123456789012'
-    };
+    walletEncryption = new WalletEncryption(
+      'test_master_key',
+      mockLogger
+    );
   });
 
   afterEach(() => {
-    process.env = originalEnv;
+    jest.clearAllMocks();
   });
 
-  describe('encryptPrivateKey', () => {
-    it('should encrypt private key successfully', async () => {
-      // Arrange
-      const privateKey = '0x1234567890123456789012345678901234567890123456789012345678901234';
-      const userId = 'user123';
+  describe('encrypt', () => {
+    it('should encrypt data successfully', async () => {
+      const data = 'test_data';
+      const encrypted = await walletEncryption.encrypt(data);
 
-      // Act
-      const encrypted = await WalletEncryption.encryptPrivateKey(privateKey, userId);
+      expect(encrypted).toBeDefined();
+      expect(encrypted).not.toBe(data);
+      expect(typeof encrypted).toBe('string');
+    });
 
-      // Assert
+    it('should fail with invalid data', async () => {
+      await expect(walletEncryption.encrypt('')).rejects.toThrow();
+    });
+  });
+
+  describe('decrypt', () => {
+    it('should decrypt encrypted data correctly', async () => {
+      const data = 'test_data';
+      const encrypted = await walletEncryption.encrypt(data);
+      const decrypted = await walletEncryption.decrypt(encrypted);
+
+      expect(decrypted).toBe(data);
+    });
+
+    it('should fail with invalid encrypted data', async () => {
+      await expect(walletEncryption.decrypt('invalid_data')).rejects.toThrow();
+    });
+
+    it('should fail with empty data', async () => {
+      await expect(walletEncryption.decrypt('')).rejects.toThrow();
+    });
+  });
+
+  describe('encryptAmount', () => {
+    it('should encrypt amount successfully', async () => {
+      const amount = BigInt('1000000000000000000'); // 1 token
+      const encrypted = await walletEncryption.encryptAmount(amount);
+
       expect(encrypted).toBeDefined();
       expect(typeof encrypted).toBe('string');
-      expect(encrypted.length).toBeGreaterThan(0);
-    });
-
-    it('should throw error for invalid private key', async () => {
-      // Arrange
-      const privateKey = 'invalid_key';
-      const userId = 'user123';
-
-      // Act & Assert
-      await expect(WalletEncryption.encryptPrivateKey(privateKey, userId))
-        .rejects
-        .toThrow('Invalid private key format');
     });
   });
 
-  describe('decryptPrivateKey', () => {
-    it('should decrypt private key successfully', async () => {
-      // Arrange
-      const privateKey = '0x1234567890123456789012345678901234567890123456789012345678901234';
-      const userId = 'user123';
-      const encrypted = await WalletEncryption.encryptPrivateKey(privateKey, userId);
+  describe('decryptAmount', () => {
+    it('should decrypt amount correctly', async () => {
+      const amount = BigInt('1000000000000000000'); // 1 token
+      const encrypted = await walletEncryption.encryptAmount(amount);
+      const decrypted = await walletEncryption.decryptAmount(encrypted);
 
-      // Act
-      const decrypted = await WalletEncryption.decryptPrivateKey(encrypted, userId);
-
-      // Assert
-      expect(decrypted).toBe(privateKey);
-    });
-
-    it('should throw error for invalid encrypted data', async () => {
-      // Arrange
-      const encrypted = 'invalid_data';
-      const userId = 'user123';
-
-      // Act & Assert
-      await expect(WalletEncryption.decryptPrivateKey(encrypted, userId))
-        .rejects
-        .toThrow('Failed to decrypt private key');
-    });
-
-    it('should throw error for wrong user ID', async () => {
-      // Arrange
-      const privateKey = '0x1234567890123456789012345678901234567890123456789012345678901234';
-      const userId = 'user123';
-      const wrongUserId = 'wrong_user';
-      const encrypted = await WalletEncryption.encryptPrivateKey(privateKey, userId);
-
-      // Act & Assert
-      await expect(WalletEncryption.decryptPrivateKey(encrypted, wrongUserId))
-        .rejects
-        .toThrow('Failed to decrypt private key');
+      expect(decrypted).toBe(amount);
     });
   });
 
-  describe('rotateKey', () => {
-    it('should rotate encryption key successfully', async () => {
-      // Arrange
-      const privateKey = '0x1234567890123456789012345678901234567890123456789012345678901234';
-      const userId = 'user123';
-      const newMasterKey = 'new_master_key_12345678901234567890123456789012';
-      const encrypted = await WalletEncryption.encryptPrivateKey(privateKey, userId);
+  describe('validation', () => {
+    it('should validate encryption integrity', async () => {
+      const data = 'test_data';
+      const encrypted = await walletEncryption.encrypt(data);
+      const isValid = await walletEncryption.validateEncryption(encrypted);
 
-      // Act
-      const newEncrypted = await WalletEncryption.rotateKey(encrypted, userId, newMasterKey);
-      
-      // Temporarily set new master key to test decryption
-      process.env.MASTER_KEY = newMasterKey;
-      const decrypted = await WalletEncryption.decryptPrivateKey(newEncrypted, userId);
-
-      // Assert
-      expect(decrypted).toBe(privateKey);
-    });
-  });
-
-  describe('validateEncryption', () => {
-    it('should validate correct encryption', async () => {
-      // Arrange
-      const privateKey = '0x1234567890123456789012345678901234567890123456789012345678901234';
-      const userId = 'user123';
-      const encrypted = await WalletEncryption.encryptPrivateKey(privateKey, userId);
-
-      // Act
-      const isValid = await WalletEncryption.validateEncryption(encrypted, userId);
-
-      // Assert
       expect(isValid).toBe(true);
     });
 
-    it('should return false for invalid encryption', async () => {
-      // Arrange
-      const encrypted = 'invalid_data';
-      const userId = 'user123';
-
-      // Act
-      const isValid = await WalletEncryption.validateEncryption(encrypted, userId);
-
-      // Assert
+    it('should fail validation with tampered data', async () => {
+      const isValid = await walletEncryption.validateEncryption('tampered_data');
       expect(isValid).toBe(false);
     });
   });

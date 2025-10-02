@@ -1,57 +1,14 @@
-import { BigNumber } from 'ethers';
+import { BigNumberish } from 'ethers';
+import { Network, KYCLevel, KYCStatus, TransactionType, TransactionStatus } from './enums';
 
-export type KYCLevel = 'LEVEL_0' | 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3';
+export * from './enums';
 
-export type KYCStatus = 'PENDING' | 'IN_PROGRESS' | 'APPROVED' | 'REJECTED';
-
-export type TransactionType = 
-  | 'SWAP'
-  | 'TRANSFER'
-  | 'LIQUIDITY_ADD'
-  | 'LIQUIDITY_REMOVE'
-  | 'FIAT_DEPOSIT'
-  | 'FIAT_WITHDRAWAL';
-
-export type TransactionStatus = 
-  | 'PENDING'
-  | 'PROCESSING'
-  | 'CONFIRMED'
-  | 'FAILED'
-  | 'CANCELLED';
-
-export type Network = 'POLYGON' | 'BSC';
-
-export type WhatsAppPriority = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
-
-export interface Token {
-  address: string;
+export interface TokenBalance {
+  tokenAddress: string;
   symbol: string;
   decimals: number;
   network: Network;
-}
-
-export interface TokenBalance {
-  token: Token;
-  balance: BigNumber;
-}
-
-export interface User {
-  id: string;
-  phone: string;
-  email?: string;
-  kycStatus: KYCStatus;
-  kycLevel: KYCLevel;
-  whatsappOptIn: boolean;
-}
-
-export interface SmartWallet {
-  id: string;
-  userId: string;
-  address: string;
-  privateKeyEncrypted: string;
-  network: Network;
-  isActive: boolean;
-  balances: TokenBalance[];
+  balance: BigNumberish;
 }
 
 export interface Transaction {
@@ -61,21 +18,49 @@ export interface Transaction {
   status: TransactionStatus;
   fromAddress: string;
   toAddress: string;
-  token: Token;
-  amount: BigNumber;
+  tokenAddress: string;
+  amount: BigNumberish;
+  network: Network;
   hash?: string;
-  failureReason?: string;
+  error?: string;
   createdAt: Date;
-  confirmedAt?: Date;
+  updatedAt: Date;
 }
 
-export interface WhatsAppNotification {
+export interface User {
+  id: string;
+  phone: string;
+  kycStatus: KYCStatus;
+  kycLevel: KYCLevel;
+  whatsappOptIn: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Wallet {
   id: string;
   userId: string;
-  type: string;
-  priority: WhatsAppPriority;
-  content: string;
-  sentAt?: Date;
-  deliveredAt?: Date;
-  retryCount: number;
+  address: string;
+  privateKeyEncrypted: string;
+  network: Network;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Session {
+  userId: string;
+  deviceId: string;
+  ip: string;
+  kycLevel: KYCLevel;
+  phone: string;
+  createdAt: Date;
+  lastActivity: Date;
+}
+
+export interface TokenPayload {
+  userId: string;
+  kycLevel: KYCLevel;
+  phone: string;
+  sessionId: string;
 }

@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "lib": ["es2020", "dom"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "types": ["jest", "node", "express"],
+    "baseUrl": ".",
+    "paths": {
+      "@fintech-crypto/common": ["../../packages/common/src"],
+      "@fintech-crypto/common/*": ["../../packages/common/src/*"]
+    },
+    "noImplicitAny": false,
+    "allowJs": true,
+    "checkJs": false,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "sourceMap": true
+  },
+  "include": ["src/**/*.ts", "src/types/express.d.ts"],
+  "exclude": ["node_modules", "dist", "src/__tests__"]
+}

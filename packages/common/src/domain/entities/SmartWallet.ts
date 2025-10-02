@@ -1,55 +1,51 @@
-import { BigNumber } from 'ethers';
-import { Network, Token, TokenBalance } from '../../types';
+import { BigNumberish } from 'ethers';
+import { TokenBalance, Network } from '../../types';
 
 export class SmartWallet {
+  private readonly _balances: Map<string, TokenBalance>;
+
   constructor(
-    public readonly id: string,
-    public readonly userId: string,
     public readonly address: string,
-    public readonly privateKeyEncrypted: string,
-    public readonly network: Network,
-    public isActive: boolean,
-    public balances: TokenBalance[],
-    public readonly createdAt: Date,
-    public updatedAt: Date
-  ) {}
+    public readonly network: Network
+  ) {
+    this._balances = new Map();
+  }
 
-  public updateBalance(token: Token, newBalance: BigNumber): void {
-    const existingBalance = this.balances.find(b => 
-      b.token.address.toLowerCase() === token.address.toLowerCase() && 
-      b.token.network === token.network
-    );
+  addBalance(balance: TokenBalance): void {
+    this._balances.set(balance.tokenAddress, balance);
+  }
 
-    if (existingBalance) {
-      existingBalance.balance = newBalance;
-    } else {
-      this.balances.push({ token, balance: newBalance });
+  getBalance(tokenAddress: string): TokenBalance | undefined {
+    return this._balances.get(tokenAddress);
+  }
+
+  getAllBalances(): TokenBalance[] {
+    return Array.from(this._balances.values());
+  }
+
+  updateBalance(tokenAddress: string, newBalance: BigNumberish): void {
+    const balance = this._balances.get(tokenAddress);
+    if (balance) {
+      this._balances.set(tokenAddress, {
+        ...balance,
+        balance: newBalance,
+      });
     }
-
-    this.updatedAt = new Date();
   }
 
-  public getBalance(token: Token): BigNumber {
-    const balance = this.balances.find(b => 
-      b.token.address.toLowerCase() === token.address.toLowerCase() && 
-      b.token.network === token.network
-    );
-
-    return balance?.balance || BigNumber.from(0);
+  hasToken(tokenAddress: string): boolean {
+    return this._balances.has(tokenAddress);
   }
 
-  public deactivate(): void {
-    this.isActive = false;
-    this.updatedAt = new Date();
+  removeToken(tokenAddress: string): void {
+    this._balances.delete(tokenAddress);
   }
 
-  public activate(): void {
-    this.isActive = true;
-    this.updatedAt = new Date();
+  getBalancesCount(): number {
+    return this._balances.size;
   }
 
-  public hasEnoughBalance(token: Token, amount: BigNumber): boolean {
-    const balance = this.getBalance(token);
-    return balance.gte(amount);
+  getBalancesArray(): TokenBalance[] {
+    return Array.from(this._balances.values());
   }
 }

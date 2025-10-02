@@ -1,51 +1,61 @@
-import { BigNumber } from 'ethers';
-import { TransactionType, TransactionStatus, Token } from '../../types';
+import { BigNumberish } from 'ethers';
+import { Network, TransactionStatus, TransactionType } from '../../types';
 
 export class Transaction {
   constructor(
     public readonly id: string,
     public readonly walletId: string,
     public readonly type: TransactionType,
-    public status: TransactionStatus,
+    private _status: TransactionStatus,
     public readonly fromAddress: string,
     public readonly toAddress: string,
-    public readonly token: Token,
-    public readonly amount: BigNumber,
-    public hash: string | undefined,
-    public failureReason: string | undefined,
-    public readonly createdAt: Date,
-    public confirmedAt: Date | undefined,
-    public updatedAt: Date
+    public readonly tokenAddress: string,
+    public readonly amount: BigNumberish,
+    public readonly network: Network,
+    public readonly hash?: string,
+    public readonly error?: string,
+    public readonly createdAt: Date = new Date(),
+    public readonly updatedAt: Date = new Date()
   ) {}
 
-  public confirm(hash: string): void {
-    this.status = 'CONFIRMED';
-    this.hash = hash;
-    this.confirmedAt = new Date();
-    this.updatedAt = new Date();
+  get status(): TransactionStatus {
+    return this._status;
   }
 
-  public fail(reason: string): void {
-    this.status = 'FAILED';
-    this.failureReason = reason;
-    this.updatedAt = new Date();
+  confirm(): void {
+    if (this._status !== TransactionStatus.PENDING) {
+      throw new Error('Transaction can only be confirmed from pending state');
+    }
+    this._status = TransactionStatus.COMPLETED;
   }
 
-  public cancel(): void {
-    this.status = 'CANCELLED';
-    this.updatedAt = new Date();
+  fail(error: string): void {
+    if (this._status !== TransactionStatus.PENDING) {
+      throw new Error('Transaction can only fail from pending state');
+    }
+    this._status = TransactionStatus.FAILED;
   }
 
-  public isFinalized(): boolean {
-    return ['CONFIRMED', 'FAILED', 'CANCELLED'].includes(this.status);
+  cancel(): void {
+    if (this._status !== TransactionStatus.PENDING) {
+      throw new Error('Transaction can only be cancelled from pending state');
+    }
+    this._status = TransactionStatus.CANCELLED;
   }
 
-  public isPending(): boolean {
-    return ['PENDING', 'PROCESSING'].includes(this.status);
+  isPending(): boolean {
+    return this._status === TransactionStatus.PENDING;
   }
 
-  public getConfirmationTime(): number | undefined {
-    if (!this.confirmedAt) return undefined;
-    return this.confirmedAt.getTime() - this.createdAt.getTime();
+  isCompleted(): boolean {
+    return this._status === TransactionStatus.COMPLETED;
+  }
+
+  isFailed(): boolean {
+    return this._status === TransactionStatus.FAILED;
+  }
+
+  isCancelled(): boolean {
+    return this._status === TransactionStatus.CANCELLED;
   }
 }

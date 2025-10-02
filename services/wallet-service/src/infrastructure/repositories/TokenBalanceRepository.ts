@@ -1,7 +1,7 @@
 import { Repository, EntityRepository, MoreThan } from 'typeorm';
 import { TokenBalance } from '../../domain/entities/TokenBalance';
 import { ITokenBalanceRepository } from '../../domain/repositories/ITokenBalanceRepository';
-import { ILogger } from '@fintech/common';
+import { ILogger } from '@fintech-crypto/common';
 import { subDays } from 'date-fns';
 
 @EntityRepository(TokenBalance)

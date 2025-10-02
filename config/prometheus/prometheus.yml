@@ -1,0 +1,32 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'auth-service'
+    static_configs:
+      - targets: ['auth-service:3001']
+
+  - job_name: 'wallet-service'
+    static_configs:
+      - targets: ['wallet-service:3002']
+
+  - job_name: 'kyc-service'
+    static_configs:
+      - targets: ['kyc-service:3003']
+
+  - job_name: 'defi-service'
+    static_configs:
+      - targets: ['defi-service:3004']
+
+  - job_name: 'liquidity-service'
+    static_configs:
+      - targets: ['liquidity-service:3005']
+
+  - job_name: 'notification-service'
+    static_configs:
+      - targets: ['notification-service:3006']
+
+  - job_name: 'analytics-service'
+    static_configs:
+      - targets: ['analytics-service:3007']

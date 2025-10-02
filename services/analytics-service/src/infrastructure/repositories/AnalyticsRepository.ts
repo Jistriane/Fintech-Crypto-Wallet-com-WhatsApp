@@ -6,7 +6,7 @@ import {
   TimeGranularity
 } from '../../domain/entities/Analytics';
 import { IAnalyticsRepository } from '../../domain/repositories/IAnalyticsRepository';
-import { ILogger } from '@fintech/common';
+import { ILogger } from '@fintech-crypto/common';
 import { Decimal } from 'decimal.js';
 import { subPeriods } from 'date-fns';
 

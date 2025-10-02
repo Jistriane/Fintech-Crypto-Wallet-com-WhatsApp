@@ -1,115 +1,128 @@
-import { Repository, DataSource } from 'typeorm';
-import { IUserRepository } from '../../domain/repositories/IUserRepository';
-import { User } from '../../domain/entities/User';
+import { Repository, EntityRepository } from 'typeorm';
 import { UserEntity } from '../database/entities/UserEntity';
+import { IUserRepository } from '../../domain/repositories/IUserRepository';
+import { ILogger } from '../../domain/interfaces/ILogger';
 import { KYCLevel, KYCStatus } from '../../types';
-import { RedisCache } from '../cache/RedisCache';
 
+@EntityRepository(UserEntity)
 export class UserRepository implements IUserRepository {
-  private readonly repository: Repository<UserEntity>;
-  private readonly cacheKeyPrefix = 'user';
+  constructor(
+    private readonly repository: Repository<UserEntity>,
+    private readonly logger: ILogger
+  ) {}
 
-  constructor(private readonly dataSource: DataSource) {
-    this.repository = dataSource.getRepository(UserEntity);
+  async save(data: {
+    phone: string;
+    password?: string;
+    kycStatus?: KYCStatus;
+    kycLevel?: KYCLevel;
+    whatsappOptIn?: boolean;
+  }): Promise<{
+    id: string;
+    phone: string;
+    password?: string;
+    kycStatus: KYCStatus;
+    kycLevel: KYCLevel;
+    whatsappOptIn: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  }> {
+    try {
+      const user = this.repository.create({
+        ...data,
+        kycStatus: data.kycStatus ?? KYCStatus.PENDING,
+        kycLevel: data.kycLevel ?? KYCLevel.LEVEL_0,
+        whatsappOptIn: data.whatsappOptIn ?? false
+      });
+      return await this.repository.save(user);
+    } catch (error) {
+      this.logger.error('Error saving user', { error });
+      throw error;
+    }
   }
 
-  private toDomain(entity: UserEntity): User {
-    return new User(
-      entity.id,
-      entity.phone,
-      entity.email,
-      entity.kycStatus,
-      entity.kycLevel,
-      entity.whatsappOptIn,
-      entity.createdAt,
-      entity.updatedAt
-    );
+  async findOne(id: string): Promise<{
+    id: string;
+    phone: string;
+    password?: string;
+    kycStatus: KYCStatus;
+    kycLevel: KYCLevel;
+    whatsappOptIn: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  } | null> {
+    try {
+      return await this.repository.findOne({ where: { id } });
+    } catch (error) {
+      this.logger.error('Error finding user', { error });
+      throw error;
+    }
   }
 
-  private toEntity(domain: User): Partial<UserEntity> {
-    return {
-      id: domain.id,
-      phone: domain.phone,
-      email: domain.email,
-      kycStatus: domain.kycStatus,
-      kycLevel: domain.kycLevel,
-      whatsappOptIn: domain.whatsappOptIn
-    };
+  async findByPhone(phone: string): Promise<{
+    id: string;
+    phone: string;
+    password?: string;
+    kycStatus: KYCStatus;
+    kycLevel: KYCLevel;
+    whatsappOptIn: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  } | null> {
+    try {
+      return await this.repository.findOne({ where: { phone } });
+    } catch (error) {
+      this.logger.error('Error finding user by phone', { error });
+      throw error;
+    }
   }
 
-  async create(user: User): Promise<User> {
-    const entity = await this.repository.save(this.toEntity(user));
-    return this.toDomain(entity as UserEntity);
+  async find(filter: {
+    kycStatus?: KYCStatus;
+    kycLevel?: KYCLevel;
+    whatsappOptIn?: boolean;
+  }): Promise<Array<{
+    id: string;
+    phone: string;
+    password?: string;
+    kycStatus: KYCStatus;
+    kycLevel: KYCLevel;
+    whatsappOptIn: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  }>> {
+    try {
+      const where: any = {};
+      if (filter.kycStatus) where.kycStatus = filter.kycStatus;
+      if (filter.kycLevel) where.kycLevel = filter.kycLevel;
+      if (filter.whatsappOptIn !== undefined) where.whatsappOptIn = filter.whatsappOptIn;
+      return await this.repository.find({ where });
+    } catch (error) {
+      this.logger.error('Error finding users', { error });
+      throw error;
+    }
   }
 
-  async findById(id: string): Promise<User | null> {
-    const cacheKey = RedisCache.generateKey(this.cacheKeyPrefix, 'id', id);
-    
-    return await RedisCache.getOrSet(cacheKey, async () => {
-      const entity = await this.repository.findOne({ where: { id } });
-      return entity ? this.toDomain(entity) : null;
-    });
+  async update(id: string, data: {
+    password?: string;
+    kycStatus?: KYCStatus;
+    kycLevel?: KYCLevel;
+    whatsappOptIn?: boolean;
+  }): Promise<void> {
+    try {
+      await this.repository.update(id, data);
+    } catch (error) {
+      this.logger.error('Error updating user', { error });
+      throw error;
+    }
   }
 
-  async findByPhone(phone: string): Promise<User | null> {
-    const cacheKey = RedisCache.generateKey(this.cacheKeyPrefix, 'phone', phone);
-    
-    return await RedisCache.getOrSet(cacheKey, async () => {
-      const entity = await this.repository.findOne({ where: { phone } });
-      return entity ? this.toDomain(entity) : null;
-    });
-  }
-
-  async update(user: User): Promise<User> {
-    await this.repository.update(user.id, this.toEntity(user));
-    
-    // Invalidar cache
-    await RedisCache.del(RedisCache.generateKey(this.cacheKeyPrefix, 'id', user.id));
-    await RedisCache.del(RedisCache.generateKey(this.cacheKeyPrefix, 'phone', user.phone));
-    
-    return user;
-  }
-
-  async updateKYCStatus(userId: string, status: KYCStatus): Promise<User> {
-    await this.repository.update(userId, { kycStatus: status });
-    
-    // Invalidar cache
-    await RedisCache.del(RedisCache.generateKey(this.cacheKeyPrefix, 'id', userId));
-    
-    const updated = await this.findById(userId);
-    if (!updated) throw new Error('User not found after update');
-    return updated;
-  }
-
-  async updateKYCLevel(userId: string, level: KYCLevel): Promise<User> {
-    await this.repository.update(userId, { kycLevel: level });
-    
-    // Invalidar cache
-    await RedisCache.del(RedisCache.generateKey(this.cacheKeyPrefix, 'id', userId));
-    
-    const updated = await this.findById(userId);
-    if (!updated) throw new Error('User not found after update');
-    return updated;
-  }
-
-  async delete(userId: string): Promise<void> {
-    const user = await this.findById(userId);
-    if (!user) return;
-
-    await this.repository.delete(userId);
-    
-    // Invalidar cache
-    await RedisCache.del(RedisCache.generateKey(this.cacheKeyPrefix, 'id', userId));
-    await RedisCache.del(RedisCache.generateKey(this.cacheKeyPrefix, 'phone', user.phone));
-  }
-
-  async findByKYCStatus(status: KYCStatus): Promise<User[]> {
-    const entities = await this.repository.find({ where: { kycStatus: status } });
-    return entities.map(entity => this.toDomain(entity));
-  }
-
-  async findByKYCLevel(level: KYCLevel): Promise<User[]> {
-    const entities = await this.repository.find({ where: { kycLevel: level } });
-    return entities.map(entity => this.toDomain(entity));
+  async delete(id: string): Promise<void> {
+    try {
+      await this.repository.delete(id);
+    } catch (error) {
+      this.logger.error('Error deleting user', { error });
+      throw error;
+    }
   }
 }

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { AnalyticsService } from '../../domain/services/AnalyticsService';
-import { ILogger } from '@fintech/common';
+import { ILogger } from '@fintech-crypto/common';
 
 export class AnalyticsController {
   constructor(

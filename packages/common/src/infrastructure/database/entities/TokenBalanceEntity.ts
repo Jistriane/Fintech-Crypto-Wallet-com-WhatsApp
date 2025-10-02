@@ -1,40 +1,46 @@
-import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { Network } from '../../../types';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn } from 'typeorm';
 import { WalletEntity } from './WalletEntity';
+import { Network } from '../../../types';
 
 @Entity('token_balances')
 export class TokenBalanceEntity {
-  @PrimaryColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-  @Column('uuid')
-  walletId: string;
+  @Column()
+  walletId!: string;
 
-  @Column({ length: 42 })
-  tokenAddress: string;
+  @Column()
+  tokenAddress!: string;
 
-  @Column({ length: 10 })
-  symbol: string;
+  @Column()
+  symbol!: string;
 
-  @Column('int')
-  decimals: number;
+  @Column()
+  decimals!: number;
 
   @Column({
     type: 'enum',
-    enum: ['POLYGON', 'BSC']
+    enum: Network,
   })
-  network: Network;
+  network!: Network;
 
-  @Column('numeric', { precision: 36, scale: 18 })
-  balance: string;
+  @Column('decimal', { precision: 36, scale: 18 })
+  balance!: string;
 
   @ManyToOne(() => WalletEntity, wallet => wallet.balances)
   @JoinColumn({ name: 'walletId' })
-  wallet: WalletEntity;
+  wallet!: WalletEntity;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
+
+  constructor(partial?: Partial<TokenBalanceEntity>) {
+    if (partial) {
+      Object.assign(this, partial);
+    }
+  }
 }

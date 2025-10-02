@@ -1,41 +1,32 @@
-# Imagem base para todos os serviços
-FROM node:18-alpine AS base
+# Estágio de build
+FROM node:18-alpine AS builder
 
-# Instalação de dependências necessárias
+# Instalação de dependências do sistema
 RUN apk add --no-cache python3 make g++ git
 
 # Diretório de trabalho
 WORKDIR /app
 
 # Arquivos de configuração do projeto
-COPY package.json yarn.lock tsconfig.json ./
-COPY packages/common/package.json ./packages/common/
+COPY package*.json ./
+COPY packages/common/package*.json ./packages/common/
+COPY services/*/package*.json ./services/
 
 # Instalação de dependências
-RUN yarn install --frozen-lockfile
+RUN npm install --legacy-peer-deps
 
 # Build do pacote comum
 COPY packages/common ./packages/common
-RUN cd packages/common && yarn build
+RUN cd packages/common && npm run build
 
-# Configuração de produção
-FROM node:18-alpine AS production
+# Estágio de produção
+FROM node:18-alpine
 
 WORKDIR /app
 
-# Copia apenas os arquivos necessários
-COPY --from=base /app/node_modules ./node_modules
-COPY --from=base /app/packages ./packages
+# Copia os artefatos de build
+COPY --from=builder /app/packages/common/dist ./packages/common/dist
+COPY --from=builder /app/packages/common/node_modules ./packages/common/node_modules
+COPY --from=builder /app/node_modules ./node_modules
 
-# Configurações de ambiente
-ENV NODE_ENV=production
-
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
-
-# Exposição da porta
-EXPOSE 3000
-
-# Comando padrão
-CMD ["node", "dist/index.js"]
+# Comando para iniciar o serviço será definido nos Dockerfiles específicos

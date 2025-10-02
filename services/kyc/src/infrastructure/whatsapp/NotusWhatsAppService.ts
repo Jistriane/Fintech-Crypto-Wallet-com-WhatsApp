@@ -1,162 +1,98 @@
-import { WhatsAppSLAMonitor } from '@common/infrastructure/monitoring/WhatsAppSLAMonitor';
-import { NotificationEscalator } from '@common/infrastructure/notifications/NotificationEscalator';
-import { WhatsAppPriority } from '@common/types';
+import axios from 'axios';
+import { ILogger } from '@fintech-crypto/common';
 
-interface NotusMessage {
-  type: 'text' | 'template' | 'image' | 'document';
-  content: string | {
+export interface WhatsAppMessage {
+  to: string;
+  type: 'text' | 'template';
+  text?: string;
+  template?: {
     name: string;
-    parameters: string[];
+    language: {
+      code: string;
+    };
+    components?: Array<{
+      type: string;
+      parameters: Array<{
+        type: string;
+        text?: string;
+        currency?: {
+          fallback_value: string;
+          code: string;
+          amount_1000: number;
+        };
+      }>;
+    }>;
   };
-  priority: WhatsAppPriority;
 }
 
 export class NotusWhatsAppService {
   private readonly apiKey: string;
   private readonly baseUrl: string;
 
-  constructor() {
-    this.apiKey = process.env.NOTUS_API_KEY!;
-    this.baseUrl = process.env.NOTUS_API_URL || 'https://api.notus.com/v1';
+  constructor(
+    apiKey: string,
+    baseUrl: string = 'https://api.notus.com/v1',
+    private readonly logger: ILogger
+  ) {
+    this.apiKey = apiKey;
+    this.baseUrl = baseUrl;
   }
 
-  async sendMessage(
-    phone: string,
-    message: NotusMessage,
-    userId: string
-  ): Promise<boolean> {
-    const notificationId = `${message.type}_${userId}_${Date.now()}`;
-    await WhatsAppSLAMonitor.trackNotificationSent(notificationId, message.priority);
-
+  async sendMessage(message: WhatsAppMessage): Promise<boolean> {
     try {
-      // TODO: Implementar chamada real à API Notus
-      console.log(`[Notus] Enviando mensagem para ${phone}:`, message);
-
-      // Simular envio bem-sucedido
-      await this.simulateMessageDelivery(notificationId);
-
-      return true;
-    } catch (error) {
-      console.error('Erro ao enviar mensagem WhatsApp:', error);
-
-      // Configurar escalonamento
-      await NotificationEscalator.handleNotificationTimeout(
-        notificationId,
+      const response = await axios.post(
+        `${this.baseUrl}/messages`,
+        message,
         {
-          userId,
-          phone,
-        },
-        message.priority,
-        typeof message.content === 'string' 
-          ? message.content 
-          : `Template: ${message.content.name}`
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json',
+          },
+        }
       );
 
+      return response.status === 200;
+    } catch (error) {
+      this.logger.error('Error sending WhatsApp message', { error, message });
       return false;
     }
   }
 
-  async sendKYCWelcome(phone: string, userId: string): Promise<boolean> {
-    const message: NotusMessage = {
-      type: 'template',
-      content: {
-        name: 'kyc_welcome',
-        parameters: []
-      },
-      priority: 'HIGH'
-    };
+  async verifyNumber(phone: string): Promise<boolean> {
+    try {
+      const response = await axios.post(
+        `${this.baseUrl}/contacts/verify`,
+        { phone },
+        {
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-    return await this.sendMessage(phone, message, userId);
+      return response.data.exists === true;
+    } catch (error) {
+      this.logger.error('Error verifying WhatsApp number', { error, phone });
+      return false;
+    }
   }
 
-  async requestDocument(
-    phone: string,
-    userId: string,
-    documentType: string
-  ): Promise<boolean> {
-    const message: NotusMessage = {
-      type: 'template',
-      content: {
-        name: 'kyc_document_request',
-        parameters: [documentType]
-      },
-      priority: 'HIGH'
-    };
+  async getMessageStatus(messageId: string): Promise<string> {
+    try {
+      const response = await axios.get(
+        `${this.baseUrl}/messages/${messageId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+          },
+        }
+      );
 
-    return await this.sendMessage(phone, message, userId);
-  }
-
-  async notifyDocumentApproved(
-    phone: string,
-    userId: string,
-    documentType: string
-  ): Promise<boolean> {
-    const message: NotusMessage = {
-      type: 'text',
-      content: `✅ Seu documento ${documentType} foi aprovado! Prosseguindo com a verificação...`,
-      priority: 'HIGH'
-    };
-
-    return await this.sendMessage(phone, message, userId);
-  }
-
-  async notifyDocumentRejected(
-    phone: string,
-    userId: string,
-    documentType: string,
-    reason: string
-  ): Promise<boolean> {
-    const message: NotusMessage = {
-      type: 'text',
-      content: `❌ Seu documento ${documentType} foi rejeitado.\nMotivo: ${reason}\nPor favor, envie uma nova foto do documento.`,
-      priority: 'HIGH'
-    };
-
-    return await this.sendMessage(phone, message, userId);
-  }
-
-  async notifyKYCApproved(
-    phone: string,
-    userId: string,
-    level: string
-  ): Promise<boolean> {
-    const message: NotusMessage = {
-      type: 'template',
-      content: {
-        name: 'kyc_approved',
-        parameters: [level]
-      },
-      priority: 'HIGH'
-    };
-
-    return await this.sendMessage(phone, message, userId);
-  }
-
-  async notifyKYCRejected(
-    phone: string,
-    userId: string,
-    reason: string
-  ): Promise<boolean> {
-    const message: NotusMessage = {
-      type: 'template',
-      content: {
-        name: 'kyc_rejected',
-        parameters: [reason]
-      },
-      priority: 'HIGH'
-    };
-
-    return await this.sendMessage(phone, message, userId);
-  }
-
-  private async simulateMessageDelivery(notificationId: string): Promise<void> {
-    // Simular delay de entrega
-    await new Promise(resolve => setTimeout(resolve, 500));
-    await WhatsAppSLAMonitor.trackNotificationDelivered(notificationId);
-  }
-
-  async handleWebhook(payload: any): Promise<void> {
-    // TODO: Implementar processamento de webhooks da Notus
-    console.log('[Notus] Webhook recebido:', payload);
+      return response.data.status;
+    } catch (error) {
+      this.logger.error('Error getting message status', { error, messageId });
+      return 'error';
+    }
   }
 }

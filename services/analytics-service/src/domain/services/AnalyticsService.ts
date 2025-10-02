@@ -5,7 +5,7 @@ import {
   MetricType,
   TimeGranularity
 } from '../entities/Analytics';
-import { ILogger } from '@fintech/common';
+import { ILogger } from '@fintech-crypto/common';
 import { Channel } from 'amqplib';
 import { Redis } from 'ioredis';
 import { Decimal } from 'decimal.js';

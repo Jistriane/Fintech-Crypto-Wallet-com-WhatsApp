@@ -1,85 +1,98 @@
-import { ethers } from 'ethers';
-import { User } from '../entities/User';
+import { ILogger } from '../interfaces/ILogger';
 import { IUserRepository } from '../repositories/IUserRepository';
 import { KYCLevel, KYCStatus } from '../../types';
-import { KYC_LEVELS } from '../../constants/kyc';
 
 export class UserService {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly logger: ILogger
+  ) {}
 
-  async createUser(phone: string, email?: string): Promise<User> {
-    // Verifica se já existe usuário com este telefone
-    const existingUser = await this.userRepository.findByPhone(phone);
-    if (existingUser) {
-      throw new Error('User with this phone number already exists');
+  async createUser(phone: string): Promise<string> {
+    try {
+      const user = await this.userRepository.save({
+        phone,
+        kycStatus: KYCStatus.PENDING,
+        kycLevel: KYCLevel.LEVEL_0,
+        whatsappOptIn: false,
+      });
+
+      return user.id;
+    } catch (error) {
+      this.logger.error('Error creating user', { error });
+      throw error;
     }
-
-    const user = new User(
-      ethers.utils.id(Date.now().toString()), // ID único
-      phone,
-      email,
-      'PENDING', // KYC status inicial
-      'LEVEL_0', // KYC level inicial
-      true, // WhatsApp opt-in por padrão
-      new Date(),
-      new Date()
-    );
-
-    return await this.userRepository.create(user);
   }
 
-  async updateKYCStatus(userId: string, status: KYCStatus): Promise<User> {
-    const user = await this.userRepository.findById(userId);
-    if (!user) {
-      throw new Error('User not found');
+  async getUser(id: string): Promise<any> {
+    try {
+      return await this.userRepository.findOne(id);
+    } catch (error) {
+      this.logger.error('Error getting user', { error });
+      throw error;
     }
-
-    user.updateKYCStatus(status);
-    return await this.userRepository.update(user);
   }
 
-  async updateKYCLevel(userId: string, level: KYCLevel): Promise<User> {
-    const user = await this.userRepository.findById(userId);
-    if (!user) {
-      throw new Error('User not found');
+  async getUserByPhone(phone: string): Promise<any> {
+    try {
+      return await this.userRepository.findOne({ phone });
+    } catch (error) {
+      this.logger.error('Error getting user by phone', { error });
+      throw error;
     }
-
-    user.updateKYCLevel(level);
-    return await this.userRepository.update(user);
   }
 
-  async canPerformOperation(userId: string, operation: string): Promise<boolean> {
-    const user = await this.userRepository.findById(userId);
-    if (!user) {
-      throw new Error('User not found');
+  async updateKYCStatus(id: string, status: KYCStatus): Promise<void> {
+    try {
+      await this.userRepository.update(id, { kycStatus: status });
+    } catch (error) {
+      this.logger.error('Error updating KYC status', { error });
+      throw error;
     }
-
-    return user.canPerformOperation(operation);
   }
 
-  async getTransactionLimits(userId: string): Promise<{
-    dailyLimit: string;
-    monthlyLimit: string;
-    singleTransactionLimit: string;
-  }> {
-    const user = await this.userRepository.findById(userId);
-    if (!user) {
-      throw new Error('User not found');
+  async updateKYCLevel(id: string, level: KYCLevel): Promise<void> {
+    try {
+      await this.userRepository.update(id, { kycLevel: level });
+    } catch (error) {
+      this.logger.error('Error updating KYC level', { error });
+      throw error;
     }
-
-    const limits = KYC_LEVELS[user.kycLevel];
-    return {
-      dailyLimit: limits.dailyLimit.toString(),
-      monthlyLimit: limits.monthlyLimit.toString(),
-      singleTransactionLimit: limits.singleTransactionLimit.toString()
-    };
   }
 
-  async getUsersByKYCStatus(status: KYCStatus): Promise<User[]> {
-    return await this.userRepository.findByKYCStatus(status);
+  async setWhatsAppOptIn(id: string, optIn: boolean): Promise<void> {
+    try {
+      await this.userRepository.update(id, { whatsappOptIn: optIn });
+    } catch (error) {
+      this.logger.error('Error updating WhatsApp opt-in', { error });
+      throw error;
+    }
   }
 
-  async getUsersByKYCLevel(level: KYCLevel): Promise<User[]> {
-    return await this.userRepository.findByKYCLevel(level);
+  async getUsersByKYCStatus(status: KYCStatus): Promise<any[]> {
+    try {
+      return await this.userRepository.find({ kycStatus: status });
+    } catch (error) {
+      this.logger.error('Error getting users by KYC status', { error });
+      throw error;
+    }
+  }
+
+  async getUsersByKYCLevel(level: KYCLevel): Promise<any[]> {
+    try {
+      return await this.userRepository.find({ kycLevel: level });
+    } catch (error) {
+      this.logger.error('Error getting users by KYC level', { error });
+      throw error;
+    }
+  }
+
+  async getWhatsAppOptInUsers(): Promise<any[]> {
+    try {
+      return await this.userRepository.find({ whatsappOptIn: true });
+    } catch (error) {
+      this.logger.error('Error getting WhatsApp opt-in users', { error });
+      throw error;
+    }
   }
 }

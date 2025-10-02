@@ -1,73 +1,94 @@
-import { ethers, BigNumber } from 'ethers';
-import { SmartWallet } from '../entities/SmartWallet';
+import { BigNumberish, formatUnits } from 'ethers';
+import { ILogger } from '../interfaces/ILogger';
 import { IWalletRepository } from '../repositories/IWalletRepository';
-import { Network, Token } from '../../types';
-import { NETWORK_LIMITS } from '../../constants/kyc';
+import { Network, TokenBalance } from '../../types';
 
 export class WalletService {
-  constructor(private readonly walletRepository: IWalletRepository) {}
+  constructor(
+    private readonly walletRepository: IWalletRepository,
+    private readonly logger: ILogger
+  ) {}
 
-  async createWallet(userId: string, network: Network): Promise<SmartWallet> {
-    const wallet = ethers.Wallet.createRandom();
-    
-    // TODO: Implementar criptografia da chave privada
-    const privateKeyEncrypted = wallet.privateKey;
+  async createWallet(userId: string, network: Network): Promise<string> {
+    try {
+      const wallet = await this.walletRepository.save({
+        userId,
+        network,
+        isActive: true,
+      });
 
-    const newWallet = new SmartWallet(
-      ethers.utils.id(Date.now().toString()), // ID único
-      userId,
-      wallet.address,
-      privateKeyEncrypted,
-      network,
-      true, // ativo por padrão
-      [], // balances vazios inicialmente
-      new Date(),
-      new Date()
-    );
-
-    return await this.walletRepository.create(newWallet);
+      return wallet.id;
+    } catch (error) {
+      this.logger.error('Error creating wallet', { error });
+      throw error;
+    }
   }
 
-  async validateTransaction(
-    wallet: SmartWallet,
-    token: Token,
-    amount: BigNumber
-  ): Promise<boolean> {
-    // Verifica se a carteira está ativa
-    if (!wallet.isActive) {
-      throw new Error('Wallet is not active');
+  async getWallet(id: string): Promise<any> {
+    try {
+      return await this.walletRepository.findOne(id);
+    } catch (error) {
+      this.logger.error('Error getting wallet', { error });
+      throw error;
     }
-
-    // Verifica se tem saldo suficiente
-    if (!wallet.hasEnoughBalance(token, amount)) {
-      throw new Error('Insufficient balance');
-    }
-
-    // Verifica limites da rede
-    const networkLimit = NETWORK_LIMITS[wallet.network];
-    if (amount.gt(ethers.utils.parseUnits(networkLimit.maxSingleTransaction, token.decimals))) {
-      throw new Error(`Transaction amount exceeds network limit of ${networkLimit.maxSingleTransaction}`);
-    }
-
-    return true;
   }
 
-  async updateWalletBalances(wallet: SmartWallet): Promise<SmartWallet> {
-    // TODO: Implementar atualização de saldos via blockchain
-    return wallet;
-  }
-
-  async getWalletsByUser(userId: string): Promise<SmartWallet[]> {
-    return await this.walletRepository.findByUserId(userId);
-  }
-
-  async deactivateWallet(walletId: string): Promise<SmartWallet> {
-    const wallet = await this.walletRepository.findById(walletId);
-    if (!wallet) {
-      throw new Error('Wallet not found');
+  async getWalletsByUser(userId: string): Promise<any[]> {
+    try {
+      return await this.walletRepository.find({ userId });
+    } catch (error) {
+      this.logger.error('Error getting wallets by user', { error });
+      throw error;
     }
+  }
 
-    wallet.deactivate();
-    return await this.walletRepository.update(wallet);
+  async updateWalletStatus(id: string, isActive: boolean): Promise<void> {
+    try {
+      await this.walletRepository.update(id, { isActive });
+    } catch (error) {
+      this.logger.error('Error updating wallet status', { error });
+      throw error;
+    }
+  }
+
+  async updateTokenBalance(
+    id: string,
+    tokenAddress: string,
+    balance: BigNumberish
+  ): Promise<void> {
+    try {
+      const formattedBalance = formatUnits(balance, 18);
+      await this.walletRepository.updateTokenBalance(id, tokenAddress, formattedBalance);
+    } catch (error) {
+      this.logger.error('Error updating token balance', { error });
+      throw error;
+    }
+  }
+
+  async getTokenBalances(id: string): Promise<TokenBalance[]> {
+    try {
+      return await this.walletRepository.getTokenBalances(id);
+    } catch (error) {
+      this.logger.error('Error getting token balances', { error });
+      throw error;
+    }
+  }
+
+  async getActiveWallets(): Promise<any[]> {
+    try {
+      return await this.walletRepository.find({ isActive: true });
+    } catch (error) {
+      this.logger.error('Error getting active wallets', { error });
+      throw error;
+    }
+  }
+
+  async getWalletsByNetwork(network: Network): Promise<any[]> {
+    try {
+      return await this.walletRepository.find({ network });
+    } catch (error) {
+      this.logger.error('Error getting wallets by network', { error });
+      throw error;
+    }
   }
 }

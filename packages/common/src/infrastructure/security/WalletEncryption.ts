@@ -1,182 +1,128 @@
 import { createCipheriv, createDecipheriv, randomBytes, scrypt } from 'crypto';
 import { promisify } from 'util';
-import { ethers } from 'ethers';
+import { formatUnits, parseUnits } from 'ethers';
+import { ILogger } from '../../domain/interfaces/ILogger';
 
 const scryptAsync = promisify(scrypt);
 
 export class WalletEncryption {
-  private static readonly ALGORITHM = 'aes-256-gcm';
-  private static readonly KEY_LENGTH = 32;
-  private static readonly SALT_LENGTH = 32;
-  private static readonly IV_LENGTH = 12;
-  private static readonly AUTH_TAG_LENGTH = 16;
-  private static readonly ENCODING = 'hex';
+  private readonly algorithm = 'aes-256-gcm';
+  private readonly keyLength = 32;
+  private readonly saltLength = 32;
+  private readonly ivLength = 16;
+  private readonly authTagLength = 16;
 
-  private static async deriveKey(
-    masterKey: string,
-    salt: Buffer
-  ): Promise<Buffer> {
-    return await scryptAsync(
-      masterKey,
-      salt,
-      WalletEncryption.KEY_LENGTH,
-      {
-        N: 32768,
-        r: 8,
-        p: 1
-      }
-    ) as Buffer;
-  }
+  constructor(
+    private readonly masterKey: string,
+    private readonly logger: ILogger
+  ) {}
 
-  static async encryptPrivateKey(
-    privateKey: string,
-    userId: string
-  ): Promise<string> {
+  async encrypt(data: string): Promise<string> {
     try {
-      // Validar chave privada
-      if (!ethers.utils.isHexString(privateKey, 32)) {
-        throw new Error('Invalid private key format');
-      }
+      const salt = randomBytes(this.saltLength);
+      const iv = randomBytes(this.ivLength);
 
-      // Gerar salt único por usuário
-      const salt = randomBytes(WalletEncryption.SALT_LENGTH);
-      
-      // Derivar chave de criptografia
-      const key = await WalletEncryption.deriveKey(
-        process.env.MASTER_KEY!,
-        Buffer.concat([salt, Buffer.from(userId)])
-      );
+      const key = await scryptAsync(
+        this.masterKey,
+        salt,
+        this.keyLength
+      ) as Buffer;
 
-      // Gerar IV
-      const iv = randomBytes(WalletEncryption.IV_LENGTH);
-
-      // Criar cipher
-      const cipher = createCipheriv(
-        WalletEncryption.ALGORITHM,
-        key,
-        iv,
-        { authTagLength: WalletEncryption.AUTH_TAG_LENGTH }
-      );
-
-      // Criptografar
+      const cipher = createCipheriv(this.algorithm, key, iv);
       const encrypted = Buffer.concat([
-        cipher.update(privateKey, 'utf8'),
-        cipher.final()
+        cipher.update(data, 'utf8'),
+        cipher.final(),
       ]);
 
-      // Obter tag de autenticação
       const authTag = cipher.getAuthTag();
 
-      // Combinar componentes
-      const combined = Buffer.concat([
+      const result = Buffer.concat([
         salt,
         iv,
         authTag,
-        encrypted
-      ]);
+        encrypted,
+      ]).toString('base64');
 
-      return combined.toString(WalletEncryption.ENCODING);
+      return result;
     } catch (error) {
-      throw new Error(`Failed to encrypt private key: ${error.message}`);
+      this.logger.error('Error encrypting data', { error });
+      throw new Error('Encryption failed');
     }
   }
 
-  static async decryptPrivateKey(
-    encryptedData: string,
-    userId: string
-  ): Promise<string> {
+  async decrypt(encryptedData: string): Promise<string> {
     try {
-      // Converter dados criptografados
-      const data = Buffer.from(encryptedData, WalletEncryption.ENCODING);
+      const buffer = Buffer.from(encryptedData, 'base64');
 
-      // Extrair componentes
-      const salt = data.slice(0, WalletEncryption.SALT_LENGTH);
-      const iv = data.slice(
-        WalletEncryption.SALT_LENGTH,
-        WalletEncryption.SALT_LENGTH + WalletEncryption.IV_LENGTH
+      const salt = buffer.subarray(0, this.saltLength);
+      const iv = buffer.subarray(
+        this.saltLength,
+        this.saltLength + this.ivLength
       );
-      const authTag = data.slice(
-        WalletEncryption.SALT_LENGTH + WalletEncryption.IV_LENGTH,
-        WalletEncryption.SALT_LENGTH + WalletEncryption.IV_LENGTH + WalletEncryption.AUTH_TAG_LENGTH
+      const authTag = buffer.subarray(
+        this.saltLength + this.ivLength,
+        this.saltLength + this.ivLength + this.authTagLength
       );
-      const encrypted = data.slice(
-        WalletEncryption.SALT_LENGTH + WalletEncryption.IV_LENGTH + WalletEncryption.AUTH_TAG_LENGTH
+      const encrypted = buffer.subarray(
+        this.saltLength + this.ivLength + this.authTagLength
       );
 
-      // Derivar chave
-      const key = await WalletEncryption.deriveKey(
-        process.env.MASTER_KEY!,
-        Buffer.concat([salt, Buffer.from(userId)])
-      );
+      const key = await scryptAsync(
+        this.masterKey,
+        salt,
+        this.keyLength
+      ) as Buffer;
 
-      // Criar decipher
-      const decipher = createDecipheriv(
-        WalletEncryption.ALGORITHM,
-        key,
-        iv,
-        { authTagLength: WalletEncryption.AUTH_TAG_LENGTH }
-      );
-
-      // Definir tag de autenticação
+      const decipher = createDecipheriv(this.algorithm, key, iv);
       decipher.setAuthTag(authTag);
 
-      // Descriptografar
       const decrypted = Buffer.concat([
         decipher.update(encrypted),
-        decipher.final()
+        decipher.final(),
       ]);
 
-      const privateKey = decrypted.toString('utf8');
-
-      // Validar chave privada
-      if (!ethers.utils.isHexString(privateKey, 32)) {
-        throw new Error('Decrypted data is not a valid private key');
-      }
-
-      return privateKey;
+      return decrypted.toString('utf8');
     } catch (error) {
-      throw new Error(`Failed to decrypt private key: ${error.message}`);
+      this.logger.error('Error decrypting data', { error });
+      throw new Error('Decryption failed');
     }
   }
 
-  static async rotateKey(
-    encryptedData: string,
-    userId: string,
-    newMasterKey: string
-  ): Promise<string> {
-    // Descriptografar com chave antiga
-    const privateKey = await WalletEncryption.decryptPrivateKey(
-      encryptedData,
-      userId
-    );
-
-    // Salvar chave antiga temporariamente
-    const oldMasterKey = process.env.MASTER_KEY;
-    
+  async encryptPrivateKey(privateKey: string): Promise<string> {
     try {
-      // Usar nova chave mestra
-      process.env.MASTER_KEY = newMasterKey;
-
-      // Criptografar com nova chave
-      return await WalletEncryption.encryptPrivateKey(privateKey, userId);
-    } finally {
-      // Restaurar chave antiga
-      process.env.MASTER_KEY = oldMasterKey;
+      return await this.encrypt(privateKey);
+    } catch (error) {
+      this.logger.error('Error encrypting private key', { error });
+      throw new Error('Private key encryption failed');
     }
   }
 
-  static async validateEncryption(
-    encryptedData: string,
-    userId: string
-  ): Promise<boolean> {
+  async decryptPrivateKey(encryptedPrivateKey: string): Promise<string> {
     try {
-      const privateKey = await WalletEncryption.decryptPrivateKey(
-        encryptedData,
-        userId
-      );
-      return ethers.utils.isHexString(privateKey, 32);
-    } catch {
-      return false;
+      return await this.decrypt(encryptedPrivateKey);
+    } catch (error) {
+      this.logger.error('Error decrypting private key', { error });
+      throw new Error('Private key decryption failed');
+    }
+  }
+
+  async encryptAmount(amount: bigint): Promise<string> {
+    try {
+      const amountString = formatUnits(amount, 18);
+      return await this.encrypt(amountString);
+    } catch (error) {
+      this.logger.error('Error encrypting amount', { error });
+      throw new Error('Amount encryption failed');
+    }
+  }
+
+  async decryptAmount(encryptedAmount: string): Promise<bigint> {
+    try {
+      const amountString = await this.decrypt(encryptedAmount);
+      return parseUnits(amountString, 18);
+    } catch (error) {
+      this.logger.error('Error decrypting amount', { error });
+      throw new Error('Amount decryption failed');
     }
   }
 }
