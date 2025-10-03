@@ -1,12 +1,13 @@
 import '@/styles/globals.css';
 import { Inter } from 'next/font/google';
-import { AuthProvider } from '@/providers/AuthProvider';
+import { Providers } from './providers';
+import Layout from '@/components/layout/Layout';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Crypto Wallet Admin',
-  description: 'Painel administrativo da Crypto Wallet',
+  title: 'Crypto Wallet - Gerenciador de Carteira com WhatsApp',
+  description: 'Gerencie suas criptomoedas com segurança e facilidade',
 };
 
 export default function RootLayout({
@@ -15,9 +16,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
+        <Providers>
+          <Layout>{children}</Layout>
+        </Providers>
       </body>
     </html>
   );
