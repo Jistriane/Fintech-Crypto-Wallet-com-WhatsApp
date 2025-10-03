@@ -168,7 +168,7 @@ async function main() {
       logger.error('Erro não tratado:', error);
       alertService.createAlert(
         AlertType.SYSTEM_ERROR,
-        AlertSeverity.CRITICAL,
+        AlertSeverity.CRITICAL as any,
         {
           error: error.message,
           stack: error.stack
@@ -180,7 +180,7 @@ async function main() {
       logger.error('Promise não tratada:', reason as Error);
       alertService.createAlert(
         AlertType.SYSTEM_ERROR,
-        AlertSeverity.CRITICAL,
+        AlertSeverity.CRITICAL as any,
         {
           error: reason instanceof Error ? reason.message : String(reason)
         }

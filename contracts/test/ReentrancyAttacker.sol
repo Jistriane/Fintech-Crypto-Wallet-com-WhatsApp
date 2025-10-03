@@ -7,7 +7,7 @@ contract ReentrancyAttacker {
     SmartWalletV2 public smartWallet;
     uint256 public count;
 
-    constructor(address _smartWallet) {
+    constructor(address payable _smartWallet) {
         smartWallet = SmartWalletV2(_smartWallet);
     }
 

@@ -1,13 +1,14 @@
-import '@/styles/globals.css';
+import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import './globals.css';
 import { Providers } from './providers';
-import Layout from '@/components/layout/Layout';
+import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata = {
-  title: 'Crypto Wallet - Gerenciador de Carteira com WhatsApp',
-  description: 'Gerencie suas criptomoedas com segurança e facilidade',
+export const metadata: Metadata = {
+  title: 'Notus Crypto Wallet Admin',
+  description: 'Painel administrativo da Notus Crypto Wallet',
 };
 
 export default function RootLayout({
@@ -19,7 +20,8 @@ export default function RootLayout({
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={inter.className}>
         <Providers>
-          <Layout>{children}</Layout>
+          {children}
+          <Toaster position="top-right" />
         </Providers>
       </body>
     </html>

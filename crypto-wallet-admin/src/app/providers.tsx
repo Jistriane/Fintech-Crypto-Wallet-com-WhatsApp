@@ -1,20 +1,27 @@
-'use client';
+"use client";
 
-import { ThemeProvider } from 'next-themes';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiConfig } from 'wagmi';
-import { config } from '@/config/wagmi';
+import { ThemeProvider } from "next-themes";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { Web3Provider } from "@/providers/web3";
 
 const queryClient = new QueryClient();
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <WagmiConfig config={config}>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-        </ThemeProvider>
-      </QueryClientProvider>
-    </WagmiConfig>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="dark"
+        enableSystem={false}
+        disableTransitionOnChange
+      >
+        <Web3Provider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </Web3Provider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }

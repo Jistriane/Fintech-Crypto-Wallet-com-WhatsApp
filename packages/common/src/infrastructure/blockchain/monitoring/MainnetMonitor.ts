@@ -161,7 +161,7 @@ export class MainnetMonitor {
         await this.monitorBlockTransactions(network, block);
 
       } catch (error) {
-        this.logger.error(`Erro ao processar bloco em ${network}`, { error: error as Record<string, unknown> });
+        this.logger.error(`Erro ao processar bloco em ${network}`, error as Error, { network });
       }
     };
 
@@ -197,7 +197,7 @@ export class MainnetMonitor {
         this.networkStates.set(network, state);
 
       } catch (error) {
-        this.logger.error(`Erro ao processar transação pendente em ${network}`, { error: error as Record<string, unknown> });
+        this.logger.error(`Erro ao processar transação pendente em ${network}`, error as Error, { network });
       }
     };
 
@@ -224,7 +224,7 @@ export class MainnetMonitor {
         }
       }
     } catch (error) {
-      this.logger.error(`Erro ao monitorar transações do bloco em ${network}`, { error: error as Record<string, unknown> });
+      this.logger.error(`Erro ao monitorar transações do bloco em ${network}`, error as Error, { network });
     }
   }
 
@@ -274,7 +274,7 @@ export class MainnetMonitor {
       }
 
     } catch (error) {
-      this.logger.error(`Erro ao processar transação do sistema em ${network}`, { error: error as Record<string, unknown> });
+      this.logger.error(`Erro ao processar transação do sistema em ${network}`, error as Error, { network });
     }
   }
 
@@ -319,7 +319,7 @@ export class MainnetMonitor {
         );
 
       } catch (error) {
-        this.logger.error(`Erro ao atualizar estado da rede ${network}`, { error: error as Record<string, unknown> });
+        this.logger.error(`Erro ao atualizar estado da rede ${network}`, error as Error, { network });
       }
     }
   }
@@ -342,7 +342,7 @@ export class MainnetMonitor {
       this.logger.warn(`Alerta de mainnet: ${type} em ${network}`, data);
 
     } catch (error) {
-      this.logger.error(`Erro ao criar alerta de mainnet`, { error: error as Record<string, unknown> });
+      this.logger.error(`Erro ao criar alerta de mainnet`, error as Error, { network, type });
     }
   }
 

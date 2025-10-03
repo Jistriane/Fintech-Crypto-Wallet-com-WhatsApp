@@ -48,6 +48,57 @@ export enum AlertType {
   SUSPICIOUS_TRANSACTION = 'SUSPICIOUS_TRANSACTION',
   LARGE_TRANSACTION = 'LARGE_TRANSACTION',
   UNUSUAL_PATTERN = 'UNUSUAL_PATTERN',
+}
+
+export enum NotificationStatus {
+  PENDING = 'pending',
+  SENT = 'sent',
+  DELIVERED = 'delivered',
+  READ = 'read',
+  FAILED = 'failed'
+}
+
+export enum MessageType {
+  TEXT = 'text',
+  TEMPLATE = 'template',
+  MEDIA = 'media',
+  INTERACTIVE = 'interactive'
+}
+
+export enum WebhookEventType {
+  MESSAGE = 'message',
+  STATUS = 'status',
+  TEMPLATE = 'template',
+  MEDIA = 'media'
+}
+
+export enum NotificationChannel {
+  WHATSAPP = 'whatsapp',
+  EMAIL = 'email',
+  SMS = 'sms',
+  PUSH = 'push'
+}
+
+export enum TemplateStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected'
+}
+
+export enum MediaType {
+  IMAGE = 'image',
+  VIDEO = 'video',
+  DOCUMENT = 'document',
+  AUDIO = 'audio'
+}
+
+export enum ErrorType {
+  VALIDATION = 'validation',
+  AUTHENTICATION = 'authentication',
+  RATE_LIMIT = 'rate_limit',
+  SERVER = 'server',
+  NETWORK = 'network'
+}
   NETWORK_CONGESTION = 'NETWORK_CONGESTION',
   HIGH_GAS_PRICE = 'HIGH_GAS_PRICE',
   SECURITY_BREACH = 'SECURITY_BREACH',

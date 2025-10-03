@@ -245,16 +245,16 @@ contract SmartWalletV2 is
         bool cancelled,
         uint256 approvalsCount
     ) {
-        QueuedTransaction storage tx = queuedTransactions[txHash];
+        QueuedTransaction storage queuedTx = queuedTransactions[txHash];
         return (
-            tx.from,
-            tx.to,
-            tx.amount,
-            tx.token,
-            tx.queuedAt,
-            tx.executed,
-            tx.cancelled,
-            tx.approvalsCount
+            queuedTx.from,
+            queuedTx.to,
+            queuedTx.amount,
+            queuedTx.token,
+            queuedTx.queuedAt,
+            queuedTx.executed,
+            queuedTx.cancelled,
+            queuedTx.approvalsCount
         );
     }
 

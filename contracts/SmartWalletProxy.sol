@@ -12,3 +12,4 @@ contract SmartWalletProxy is ERC1967Proxy {
         address _logic,
         bytes memory _data
     ) payable ERC1967Proxy(_logic, _data) {}
+}

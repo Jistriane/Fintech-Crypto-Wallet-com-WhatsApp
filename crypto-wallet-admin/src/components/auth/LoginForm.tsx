@@ -1,189 +1,113 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { API_ENDPOINTS, fetchApi } from '@/config/api';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useAuth } from '@/contexts/AuthContext';
+import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Eye, EyeOff } from 'lucide-react';
 
-export default function LoginForm() {
-  const router = useRouter();
-  const [identifier, setIdentifier] = useState('');
-  const [password, setPassword] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [showVerification, setShowVerification] = useState(false);
-  const [error, setError] = useState('');
+const loginSchema = z.object({
+  email: z.string().email('Email inválido').min(1, 'Email é obrigatório'),
+  password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres'),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
+
+export function LoginForm() {
+  const { login } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isAdminLogin, setIsAdminLogin] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
 
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      if (isAdminLogin) {
-        // Login administrativo (sem verificação em duas etapas)
-        const response = await fetchApi(API_ENDPOINTS.adminLogin, {
-          method: 'POST',
-          body: JSON.stringify({ email: identifier, password }),
-        });
-
-        if (response.success) {
-          router.push('/dashboard');
-        } else {
-          setError(response.message || 'Credenciais inválidas');
-        }
-      } else {
-        // Login normal com verificação em duas etapas
-        if (!showVerification) {
-          const response = await fetchApi(API_ENDPOINTS.login, {
-            method: 'POST',
-            body: JSON.stringify({ phone: identifier, password }),
-          });
-          
-          if (response.success) {
-            setShowVerification(true);
-          } else {
-            setError(response.message || 'Erro ao fazer login. Tente novamente.');
-          }
-        } else {
-          const response = await fetchApi(API_ENDPOINTS.verify, {
-            method: 'POST',
-            body: JSON.stringify({ phone: identifier, verificationCode }),
-          });
-
-          if (response.success) {
-            router.push('/dashboard');
-          } else {
-            setError(response.message || 'Código de verificação inválido.');
-          }
-        }
-      }
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('Erro ao fazer login. Tente novamente.');
-      }
-      console.error('Erro:', err);
+      setIsLoading(true);
+      await login(data);
+    } catch (error) {
+      console.error('Erro ao fazer login:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            Bem-vindo de volta
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            {isAdminLogin ? 'Acesso administrativo' : 'Acesse sua carteira crypto'}
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          {error && (
-            <div className="text-red-500 text-center text-sm bg-red-100 dark:bg-red-900 p-3 rounded">
-              {error}
-            </div>
-          )}
-          {!showVerification || isAdminLogin ? (
-            <>
-              <div>
-                <label htmlFor="identifier" className="sr-only">
-                  {isAdminLogin ? 'Email' : 'Telefone'}
-                </label>
-                <input
-                  id="identifier"
-                  name="identifier"
-                  type={isAdminLogin ? 'email' : 'tel'}
-                  required
-                  className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm bg-white dark:bg-gray-700"
-                  placeholder={isAdminLogin ? 'Email administrativo' : 'Telefone'}
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  disabled={isLoading}
-                />
-              </div>
-              <div>
-                <label htmlFor="password" className="sr-only">
-                  Senha
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm bg-white dark:bg-gray-700"
-                  placeholder="Senha"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
-                />
-              </div>
-            </>
-          ) : (
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 text-center">
-                Enviamos um código de verificação para seu WhatsApp
-              </p>
-              <input
-                type="text"
-                required
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm bg-white dark:bg-gray-700"
-                placeholder="Digite o código"
-                value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value)}
-                disabled={isLoading}
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>Bem-vindo de volta</CardTitle>
+        <CardDescription>
+          Faça login para acessar o painel administrativo
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-medium">
+              Email
+            </label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="seu@email.com"
+              error={errors.email?.message}
+              {...register('email')}
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="password" className="text-sm font-medium">
+              Senha
+            </label>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                error={errors.password?.message}
+                {...register('password')}
               />
-            </div>
-          )}
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="admin-login"
-                name="admin-login"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                checked={isAdminLogin}
-                onChange={(e) => {
-                  setIsAdminLogin(e.target.checked);
-                  setShowVerification(false);
-                  setError('');
-                }}
-              />
-              <label htmlFor="admin-login" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                Login administrativo
-              </label>
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
             </div>
           </div>
-
-          <div>
-            <button
-              type="submit"
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                isLoading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Carregando...' : showVerification ? 'Verificar' : 'Entrar'}
-            </button>
-          </div>
+          <Button
+            type="submit"
+            className="w-full"
+            isLoading={isLoading}
+          >
+            Entrar
+          </Button>
         </form>
-
-        {!isAdminLogin && (
-          <div className="text-center mt-4">
-            <Link
-              href="/register"
-              className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
-            >
-              Não tem uma conta? Registre-se
-            </Link>
-          </div>
-        )}
-      </div>
-    </div>
+      </CardContent>
+      <CardFooter className="flex justify-center">
+        <p className="text-sm text-muted-foreground">
+          Problemas para acessar?{' '}
+          <a
+            href="mailto:suporte@notus.com"
+            className="font-medium text-primary hover:underline"
+          >
+            Entre em contato
+          </a>
+        </p>
+      </CardFooter>
+    </Card>
   );
 }
