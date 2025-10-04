@@ -1,0 +1,106 @@
+{
+  "notus": {
+    "api": {
+      "baseUrl": "https://api.notus.team",
+      "version": "v1",
+      "endpoints": {
+        "auth": {
+          "socialLogin": "/auth/social-login",
+          "refreshToken": "/auth/refresh",
+          "logout": "/auth/logout"
+        },
+        "wallets": {
+          "create": "/wallets/create",
+          "list": "/wallets",
+          "get": "/wallets/{walletId}",
+          "balance": "/wallets/{walletId}/balance"
+        },
+        "transactions": {
+          "send": "/transactions/send",
+          "batch": "/transactions/batch",
+          "gasless": "/transactions/gasless",
+          "history": "/transactions/history"
+        },
+        "defi": {
+          "swap": "/defi/swap",
+          "crossChain": "/defi/cross-chain",
+          "liquidity": "/defi/liquidity",
+          "pools": "/defi/pools"
+        },
+        "kyc": {
+          "verify": "/kyc/verify",
+          "status": "/kyc/status",
+          "documents": "/kyc/documents"
+        },
+        "webhooks": {
+          "register": "/webhooks/register",
+          "events": "/webhooks/events"
+        }
+      }
+    },
+    "chains": {
+      "ethereum": {
+        "chainId": 1,
+        "name": "Ethereum Mainnet",
+        "rpcUrl": "https://mainnet.infura.io/v3/{PROJECT_ID}",
+        "explorer": "https://etherscan.io"
+      },
+      "polygon": {
+        "chainId": 137,
+        "name": "Polygon",
+        "rpcUrl": "https://polygon-rpc.com",
+        "explorer": "https://polygonscan.com"
+      },
+      "bsc": {
+        "chainId": 56,
+        "name": "Binance Smart Chain",
+        "rpcUrl": "https://bsc-dataseed.binance.org",
+        "explorer": "https://bscscan.com"
+      },
+      "arbitrum": {
+        "chainId": 42161,
+        "name": "Arbitrum One",
+        "rpcUrl": "https://arb1.arbitrum.io/rpc",
+        "explorer": "https://arbiscan.io"
+      },
+      "optimism": {
+        "chainId": 10,
+        "name": "Optimism",
+        "rpcUrl": "https://mainnet.optimism.io",
+        "explorer": "https://optimistic.etherscan.io"
+      },
+      "base": {
+        "chainId": 8453,
+        "name": "Base",
+        "rpcUrl": "https://mainnet.base.org",
+        "explorer": "https://basescan.org"
+      },
+      "avalanche": {
+        "chainId": 43114,
+        "name": "Avalanche C-Chain",
+        "rpcUrl": "https://api.avax.network/ext/bc/C/rpc",
+        "explorer": "https://snowtrace.io"
+      }
+    },
+    "features": {
+      "accountAbstraction": true,
+      "smartWallets": true,
+      "gaslessTransactions": true,
+      "socialLogin": true,
+      "crossChainSwaps": true,
+      "liquidityPools": true,
+      "kycVerification": true,
+      "webhooks": true,
+      "analytics": true
+    },
+    "security": {
+      "encryption": "AES-256",
+      "signature": "ECDSA",
+      "webhookSignature": "HMAC-SHA256",
+      "rateLimit": {
+        "requests": 1000,
+        "window": "1h"
+      }
+    }
+  }
+}

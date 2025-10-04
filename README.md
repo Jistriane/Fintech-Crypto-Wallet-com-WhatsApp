@@ -70,6 +70,14 @@ O projeto é organizado como um **monorepo** com arquitetura de microserviços:
 - **Kubernetes** (produção)
 - **Prometheus** + **Grafana** (monitoramento)
 
+### Integração Notus API
+- **Account Abstraction** com Smart Wallets ERC-4337
+- **Autenticação Social** (Google, Apple ID)
+- **Transações Gasless** sem necessidade de gas
+- **DeFi Operations** (swaps, cross-chain, liquidity pools)
+- **KYC/Compliance** automático
+- **Webhooks** para notificações em tempo real
+
 ## 📦 Instalação
 
 ### Pré-requisitos
@@ -240,6 +248,39 @@ npx prisma migrate reset
 - Gerenciamento de usuários
 - Monitoramento de transações
 - Relatórios e analytics
+
+## 🔗 Integração Notus API
+
+O sistema integra com a [Notus API](https://docs.notus.team/docs/guides) para funcionalidades avançadas de Account Abstraction:
+
+### ✨ Funcionalidades Notus
+
+- **Smart Wallets ERC-4337**: Criação automática de carteiras inteligentes
+- **Autenticação Social**: Login com Google, Apple ID e outros provedores
+- **Transações Gasless**: Execução sem necessidade de gas
+- **DeFi Operations**: Swaps, cross-chain swaps e liquidity pools
+- **KYC/Compliance**: Verificação automática de identidade
+- **Webhooks**: Notificações em tempo real de eventos blockchain
+
+### 🚀 Quick Start Notus
+
+```bash
+# 1. Configure as credenciais Notus
+cp config/notus/.env-notus .env-notus
+
+# 2. Instale o SDK Notus (quando disponível)
+npm install @notus/sdk
+
+# 3. Configure os webhooks
+npm run setup:notus-webhooks
+```
+
+### 📚 Documentação Notus
+
+- [Guia de Integração Completo](./docs/notus-integration-guide.md)
+- [Configuração da API](./config/notus-api.json)
+- [Variáveis de Ambiente](./config/notus/.env-notus)
+- [Daily Board para Testes](./Daily%20Board%20-%20NotusLab.md)
 
 ## 🧪 Testes
 
