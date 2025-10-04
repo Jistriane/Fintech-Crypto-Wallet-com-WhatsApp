@@ -9,9 +9,9 @@ import {
   TableBody,
   TableCell,
   TableHead,
-
+  TableHeader,
   TableRow,
-} from '@tremor/react';
+} from '@/components/ui/table';
 import { walletService } from '@/services/wallet';
 import type { Wallet, WalletStats } from '@/types/wallet';
 import {

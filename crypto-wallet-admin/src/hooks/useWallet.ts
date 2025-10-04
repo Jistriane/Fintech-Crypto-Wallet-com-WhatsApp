@@ -1,19 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useWeb3Modal } from '@web3modal/wagmi/react';
-import { useAccount, useBalance, useDisconnect, useChainId } from 'wagmi';
+import { useAccount, useBalance, useDisconnect, useChainId, useConnect } from 'wagmi';
 import { formatEther } from 'viem';
 import { SUPPORTED_CHAINS, SUPPORTED_TOKENS } from '@/config/chains';
 import type { WalletBalance, SupportedChain } from '@/types/blockchain';
 import { toast } from 'react-hot-toast';
 
 export function useWallet() {
-  const { open } = useWeb3Modal();
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const { data: balance } = useBalance({
     address: address,
   });
   const { disconnect } = useDisconnect();
+  const { connect, connectors } = useConnect();
 
   const [walletInfo, setWalletInfo] = useState<WalletBalance | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +25,7 @@ export function useWallet() {
     );
   }, [chainId]);
 
-    // Obtém o nome da rede atual
+  // Obtém o nome da rede atual
   const getCurrentChain = useCallback(() => {
     if (!chainId) return null;
     return Object.entries(SUPPORTED_CHAINS).find(
@@ -38,14 +37,25 @@ export function useWallet() {
   const connectWallet = useCallback(async () => {
     try {
       setIsLoading(true);
-      await open();
-    } catch (error) {
+      const connector = connectors[0]; // MetaMask
+      if (!connector) {
+        throw new Error('MetaMask não encontrado. Por favor, instale a extensão MetaMask.');
+      }
+      await connect({ connector });
+      toast.success('Carteira conectada com sucesso');
+    } catch (error: any) {
       console.error('Erro ao conectar carteira:', error);
-      toast.error('Erro ao conectar carteira');
+      if (error.message.includes('User rejected')) {
+        toast.error('Conexão rejeitada. Por favor, aprove a conexão no MetaMask.');
+      } else if (error.message.includes('MetaMask não encontrado')) {
+        toast.error(error.message);
+      } else {
+        toast.error('Erro ao conectar carteira. Tente novamente.');
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [open]);
+  }, [connect, connectors]);
 
   // Desconecta a carteira
   const disconnectWallet = useCallback(() => {

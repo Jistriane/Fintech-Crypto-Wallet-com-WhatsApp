@@ -1,5 +1,5 @@
 import { useAccount, useChainId, useBalance, useDisconnect } from 'wagmi';
-import { useWeb3Modal } from '@web3modal/wagmi/react';
+import { useConnect } from 'wagmi';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
 import { Card, CardContent } from '@/components/ui/card';
@@ -31,17 +31,23 @@ export function ConnectWallet() {
     };
   }, []);
 
-  const { open } = useWeb3Modal();
+  const { connect, connectors } = useConnect();
 
   if (!isConnected || !address) {
     return (
-      <Button
-        onClick={() => open()}
-        className="w-full"
-      >
-        <Icons.wallet className="mr-2 h-4 w-4" />
-        Conectar Carteira
-      </Button>
+      <div className="flex flex-col space-y-2">
+        {connectors.map((connector) => (
+          <Button
+            key={connector.id}
+            onClick={() => connect({ connector })}
+            className="w-full"
+            disabled={!connector.ready}
+          >
+            <Icons.wallet className="mr-2 h-4 w-4" />
+            {connector.name === 'WalletConnect' ? 'WalletConnect' : 'Conectar Carteira'}
+          </Button>
+        ))}
+      </div>
     );
   }
 

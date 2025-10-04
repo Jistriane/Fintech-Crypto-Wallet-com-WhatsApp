@@ -40,13 +40,22 @@ export const clearAuthToken = () => {
 };
 
 export const handleApiError = (error: any): string => {
+  // Erro de conexão
+  if (error.code === 'ERR_NETWORK') {
+    return 'Erro de conexão com o servidor. Verifique se o servidor está rodando na porta 3333';
+  }
+  
+  // Erro da API
   if (error.response?.data?.error) {
     return error.response.data.error;
   }
+  
+  // Erro genérico com mensagem
   if (error.message) {
     return error.message;
   }
-  return 'Ocorreu um erro inesperado';
+  
+  return 'Ocorreu um erro inesperado. Por favor, tente novamente.';
 };
 
 export default api;

@@ -2,12 +2,16 @@ import express from 'express';
 import cors from 'cors';
 import { json } from 'body-parser';
 import { AuthService } from '@fintech-crypto/common';
+import userRoutes from './routes/user';
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3333;
 
 app.use(cors());
 app.use(json());
+
+// Rotas de usuário
+app.use('/', userRoutes);
 
 // Rotas básicas
 app.get('/health', (req, res) => {

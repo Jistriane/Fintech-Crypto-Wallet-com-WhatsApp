@@ -1,10 +1,25 @@
 {
-  "name": "crypto-wallet",
+  "name": "crypto-wallet-whatsapp",
   "version": "1.0.0",
+  "description": "Fintech Crypto Wallet com WhatsApp",
+  "private": true,
   "scripts": {
-    "dev": "cd crypto-wallet-admin && npm run dev",
-    "build": "cd crypto-wallet-admin && npm run build",
-    "start": "cd crypto-wallet-admin && npm run start",
-    "lint": "cd crypto-wallet-admin && npm run lint"
+    "dev": "concurrently \"npm run dev:admin\" \"npm run dev:auth\" \"npm run dev:services\"",
+    "dev:admin": "cd crypto-wallet-admin && npm run dev",
+    "dev:auth": "cd services/auth-service && npm run dev",
+    "dev:services": "concurrently \"npm run dev:wallet\" \"npm run dev:kyc\" \"npm run dev:liquidity\" \"npm run dev:notification\"",
+    "dev:wallet": "cd services/wallet-service && npm run dev",
+    "dev:kyc": "cd services/kyc && npm run dev",
+    "dev:liquidity": "cd services/liquidity && npm run dev",
+    "dev:notification": "cd services/notification-service && npm run dev",
+    "install:all": "concurrently \"npm run install:admin\" \"npm run install:services\"",
+    "install:admin": "cd crypto-wallet-admin && npm install",
+    "install:services": "concurrently \"cd services/auth-service && npm install\" \"cd services/wallet-service && npm install\" \"cd services/kyc && npm install\" \"cd services/liquidity && npm install\" \"cd services/notification-service && npm install\"",
+    "build": "concurrently \"npm run build:admin\" \"npm run build:services\"",
+    "build:admin": "cd crypto-wallet-admin && npm run build",
+    "build:services": "concurrently \"cd services/auth-service && npm run build\" \"cd services/wallet-service && npm run build\" \"cd services/kyc && npm run build\" \"cd services/liquidity && npm run build\" \"cd services/notification-service && npm run build\""
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
   }
 }

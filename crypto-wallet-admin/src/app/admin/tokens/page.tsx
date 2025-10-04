@@ -9,12 +9,9 @@ import {
   TableBody,
   TableCell,
   TableHead,
-
+  TableHeader,
   TableRow,
-  AreaChart,
-  Title,
-  Text,
-} from '@tremor/react';
+} from '@/components/ui/table';
 import { tokenService } from '@/services/token';
 import type { Token, TokenStats } from '@/types/token';
 import {

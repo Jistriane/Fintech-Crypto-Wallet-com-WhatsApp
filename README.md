@@ -1,121 +1,100 @@
-# Fintech Crypto Wallet com WhatsApp
+# Notus - Fintech Crypto Wallet com WhatsApp
 
-Uma solução completa de carteira digital de criptomoedas integrada com WhatsApp, oferecendo uma experiência segura e intuitiva para usuários.
+Sistema de carteira digital criptográfica com integração WhatsApp.
 
-## 🚀 Funcionalidades
+## Estrutura do Projeto
 
-- Carteira de criptomoedas
-- Integração com WhatsApp
-- Painel administrativo
-- KYC (Know Your Customer)
-- Pool de liquidez
-- Análise de transações
-- Monitoramento em tempo real
+O projeto é organizado como um monorepo contendo os seguintes serviços:
 
-## 🏗️ Arquitetura
+- `crypto-wallet-admin`: Frontend administrativo (Next.js)
+- `services/auth-service`: Serviço de autenticação
+- `services/wallet-service`: Serviço de carteiras
+- `services/kyc-service`: Serviço de KYC
+- `services/liquidity-service`: Serviço de liquidez
+- `services/notification-service`: Serviço de notificações
 
-O projeto é dividido em vários componentes principais:
+## Requisitos
 
-- **crypto-wallet-admin**: Painel administrativo em Next.js
-- **crypto-wallet-mobile**: Aplicativo móvel em React Native
-- **CryptoWalletApp**: Aplicativo principal
-- **services**: Microsserviços backend
-  - analytics-service
-  - auth-service
-  - defi
-  - kyc
-  - liquidity
-  - notification-service
-  - wallet-service
+- Node.js 18+
+- npm 8+
+- MongoDB
+- Redis
 
-## 🛠️ Tecnologias
-
-- Frontend:
-  - Next.js
-  - React Native
-  - TypeScript
-  - Tailwind CSS
-- Backend:
-  - Node.js
-  - TypeScript
-  - Smart Contracts (Solidity)
-- Infraestrutura:
-  - Docker
-  - Kubernetes
-  - AWS
-  - Terraform
-  - Grafana/Prometheus
-
-## 📦 Instalação
+## Instalação
 
 1. Clone o repositório:
-\`\`\`bash
-git clone https://github.com/Jistriane/Fintech-Crypto-Wallet-com-WhatsApp.git
-cd Fintech-Crypto-Wallet-com-WhatsApp
-\`\`\`
+```bash
+git clone [URL_DO_REPOSITORIO]
+cd fintech-crypto-wallet
+```
 
 2. Instale as dependências:
-\`\`\`bash
-# Instale as dependências do projeto principal
-npm install
-
-# Instale as dependências do painel admin
-cd crypto-wallet-admin
-npm install
-
-# Instale as dependências do app mobile
-cd ../crypto-wallet-mobile
-npm install
-\`\`\`
+```bash
+npm run install:all
+```
 
 3. Configure as variáveis de ambiente:
-- Copie os arquivos .env.example para .env em cada diretório de serviço
-- Preencha as variáveis necessárias
+```bash
+cp .env.example .env
+```
 
 4. Inicie os serviços:
-\`\`\`bash
-# Inicie os serviços com Docker
-docker-compose up -d
-
-# Inicie o painel admin
-cd crypto-wallet-admin
+```bash
 npm run dev
+```
 
-# Inicie o app mobile
-cd ../crypto-wallet-mobile
-npm start
-\`\`\`
+## Portas dos Serviços
 
-## 🧪 Testes
+- Frontend Admin: http://localhost:3000
+- Auth Service: http://localhost:3333
+- Wallet Service: http://localhost:3334
+- KYC Service: http://localhost:3335
+- Liquidity Service: http://localhost:3336
+- Notification Service: http://localhost:3337
 
-\`\`\`bash
-# Execute os testes unitários
-npm run test
+## Scripts Disponíveis
 
-# Execute os testes de integração
-npm run test:integration
+- `npm run dev`: Inicia todos os serviços em modo desenvolvimento
+- `npm run install:all`: Instala dependências de todos os serviços
+- `npm run dev:admin`: Inicia apenas o frontend admin
+- `npm run dev:auth`: Inicia apenas o serviço de autenticação
+- `npm run dev:services`: Inicia todos os microserviços
 
-# Execute os testes end-to-end
-npm run test:e2e
-\`\`\`
+## Tecnologias Utilizadas
 
-## 📚 Documentação
+- Frontend:
+  - Next.js 14
+  - React 18
+  - TypeScript
+  - Tailwind CSS
+  - shadcn/ui
+  - Wagmi/Viem
 
-Documentação detalhada está disponível no diretório \`docs/\`:
-- [Arquitetura](docs/architecture.md)
-- [Guia de Desenvolvimento](docs/development.md)
-- [Guia de Implantação](docs/deployment.md)
-- [Guia do Usuário](docs/user-guide.md)
-- [Solução de Problemas](docs/troubleshooting.md)
+- Backend:
+  - Node.js
+  - Express
+  - TypeScript
+  - MongoDB
+  - Redis
 
-## 🔐 Segurança
+## Funcionalidades
 
-- Implementação completa de KYC
-- Criptografia de ponta a ponta
-- Smart contracts auditados
-- Monitoramento de transações suspeitas
-- Proteção contra ataques DDoS
+- Autenticação com 2FA
+- Integração com WhatsApp
+- Gerenciamento de carteiras
+- Suporte a múltiplas redes (Ethereum, Polygon, BSC)
+- KYC/AML
+- Monitoramento de transações
+- Painel administrativo completo
 
-## 📄 Licença
+## Contribuição
 
-Este projeto está licenciado sob a [Licença MIT](LICENSE).
+1. Faça o fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
+3. Faça commit das suas alterações (`git commit -m 'Adiciona nova feature'`)
+4. Faça push para a branch (`git push origin feature/nova-feature`)
+5. Abra um Pull Request
+
+## Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.

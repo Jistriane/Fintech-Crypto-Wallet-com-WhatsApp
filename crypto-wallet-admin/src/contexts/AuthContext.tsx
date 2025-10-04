@@ -29,8 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Verifica se há um token no localStorage
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('auth_token');
     if (!token) {
       setLoading(false);
       return;
@@ -65,8 +64,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       router.push('/admin/dashboard');
       toast.success('Login realizado com sucesso!');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erro ao fazer login');
-      throw error;
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Erro ao fazer login. Verifique se o servidor está rodando na porta 3333';
+      toast.error(errorMessage);
+      throw new Error(errorMessage);
     }
   }
 
