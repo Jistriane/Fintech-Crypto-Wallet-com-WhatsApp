@@ -17,7 +17,15 @@
     "install:services": "concurrently \"cd services/auth-service && npm install\" \"cd services/wallet-service && npm install\" \"cd services/kyc && npm install\" \"cd services/liquidity && npm install\" \"cd services/notification-service && npm install\"",
     "build": "concurrently \"npm run build:admin\" \"npm run build:services\"",
     "build:admin": "cd crypto-wallet-admin && npm run build",
-    "build:services": "concurrently \"cd services/auth-service && npm run build\" \"cd services/wallet-service && npm run build\" \"cd services/kyc && npm run build\" \"cd services/liquidity && npm run build\" \"cd services/notification-service && npm run build\""
+    "build:services": "concurrently \"cd services/auth-service && npm run build\" \"cd services/wallet-service && npm run build\" \"cd services/kyc && npm run build\" \"cd services/liquidity && npm run build\" \"cd services/notification-service && npm run build\"",
+    "start": "./scripts/start-system.sh",
+    "stop": "./scripts/stop-system.sh",
+    "restart": "./scripts/stop-system.sh && ./scripts/start-system.sh",
+    "status": "./scripts/status.sh",
+    "logs": "./scripts/logs.sh",
+    "start:win": "scripts\\start-system.bat",
+    "stop:win": "scripts\\stop-system.bat",
+    "logs:win": "scripts\\logs.bat"
   },
   "dependencies": {
     "concurrently": "^8.2.2"
