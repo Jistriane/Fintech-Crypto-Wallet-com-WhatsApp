@@ -29,11 +29,16 @@ export default function SecurityPage() {
   async function loadData() {
     try {
       setIsLoading(true);
-      // TODO: Implementar chamada real para API
+      // TODO: Implementar chamada real para API de segurança
+      // const response = await fetch('/api/security/status');
+      // const data = await response.json();
+      // setSecurityStatus(data);
+      
+      // Por enquanto, manter valores padrão até implementar a API
       setSecurityStatus({
-        twoFactorEnabled: true,
+        twoFactorEnabled: false,
         lastLogin: new Date().toISOString(),
-        activeDevices: 3,
+        activeDevices: 0,
         failedAttempts: 0,
       });
     } catch (error) {

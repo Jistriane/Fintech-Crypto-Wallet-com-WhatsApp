@@ -28,12 +28,17 @@ export default function WhatsAppPage() {
   async function loadData() {
     try {
       setIsLoading(true);
-      // TODO: Implementar chamada real para API
+      // TODO: Implementar chamada real para API do WhatsApp
+      // const response = await fetch('/api/whatsapp/stats');
+      // const data = await response.json();
+      // setStats(data);
+      
+      // Por enquanto, manter valores zerados até implementar a API
       setStats({
-        activeChats: 567,
-        messagesSent: 12345,
-        messagesReceived: 12789,
-        successRate: 98.5,
+        activeChats: 0,
+        messagesSent: 0,
+        messagesReceived: 0,
+        successRate: 0,
       });
     } catch (error) {
       console.error('Erro ao carregar estatísticas:', error);

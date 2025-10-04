@@ -33,12 +33,17 @@ export default function SettingsPage() {
   async function loadData() {
     try {
       setIsLoading(true);
-      // TODO: Implementar chamada real para API
+      // TODO: Implementar chamada real para API de configurações
+      // const response = await fetch('/api/settings');
+      // const data = await response.json();
+      // setSettings(data);
+      
+      // Por enquanto, manter valores padrão até implementar a API
       setSettings({
         language: 'pt_BR',
         theme: 'light',
-        notifications: true,
-        email: 'admin@example.com',
+        notifications: false,
+        email: '',
         currency: 'BRL',
         timezone: 'America/Sao_Paulo',
       });
