@@ -8,6 +8,12 @@ O Notus é uma plataforma fintech completa que oferece uma carteira digital segu
 
 ## 🖥️ Interface do Sistema
 
+### Dashboard Administrativo
+![Notus Admin Dashboard](./public/admin-dashboard-screenshot.svg)
+
+*Dashboard principal do Notus - Visão geral completa do sistema com métricas em tempo real*
+
+### Tela de Login
 ![Crypto Wallet Admin Panel](./public/admin-panel-screenshot.svg)
 
 *Painel administrativo do Notus - Interface moderna e intuitiva para gerenciamento completo da plataforma*
