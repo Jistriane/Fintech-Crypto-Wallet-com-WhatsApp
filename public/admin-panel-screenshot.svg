@@ -1,0 +1,57 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#0a0a0a"/>
+  
+  <!-- Logo -->
+  <g transform="translate(400, 80)">
+    <!-- Logo Circle -->
+    <circle cx="0" cy="0" r="30" fill="url(#logoGradient)"/>
+    <!-- CW Text -->
+    <text x="0" y="8" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">CW</text>
+    <!-- Crypto Wallet Text -->
+    <text x="0" y="50" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="12">Crypto Wallet</text>
+  </g>
+  
+  <!-- Title -->
+  <text x="400" y="180" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="32" font-weight="bold">Crypto Wallet Admin</text>
+  
+  <!-- Subtitle -->
+  <text x="400" y="210" text-anchor="middle" fill="#aaa" font-family="Arial, sans-serif" font-size="16">Acesse o painel administrativo</text>
+  
+  <!-- Login Form -->
+  <rect x="250" y="250" width="300" height="280" fill="#1a1a1a" stroke="#333" stroke-width="1" rx="8"/>
+  
+  <!-- Welcome Text -->
+  <text x="400" y="280" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="18" font-weight="bold">Bem-vindo de volta</text>
+  
+  <!-- Instruction Text -->
+  <text x="400" y="305" text-anchor="middle" fill="#aaa" font-family="Arial, sans-serif" font-size="14">Faça login para acessar o painel administrativo</text>
+  
+  <!-- Email Field -->
+  <rect x="270" y="330" width="260" height="40" fill="#2a2a2a" stroke="#444" stroke-width="1" rx="4"/>
+  <text x="280" y="350" fill="#888" font-family="Arial, sans-serif" font-size="12">Email</text>
+  <text x="280" y="365" fill="white" font-family="Arial, sans-serif" font-size="14">admin@cryptowallet.com</text>
+  
+  <!-- Password Field -->
+  <rect x="270" y="385" width="260" height="40" fill="#2a2a2a" stroke="#444" stroke-width="1" rx="4"/>
+  <text x="280" y="405" fill="#888" font-family="Arial, sans-serif" font-size="12">Senha</text>
+  <text x="280" y="420" fill="white" font-family="Arial, sans-serif" font-size="14">••••••••</text>
+  <!-- Eye Icon -->
+  <circle cx="510" cy="405" r="8" fill="none" stroke="#666" stroke-width="1"/>
+  <circle cx="510" cy="405" r="3" fill="#666"/>
+  
+  <!-- Login Button -->
+  <rect x="270" y="445" width="260" height="45" fill="#3b82f6" rx="4"/>
+  <text x="400" y="470" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Entrar</text>
+  
+  <!-- Help Text -->
+  <text x="400" y="520" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="12">Problemas para acessar? Entre em contato</text>
+  
+  <!-- Gradient Definition -->
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>

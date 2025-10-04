@@ -6,6 +6,12 @@ Sistema completo de carteira digital criptográfica com integração WhatsApp, p
 
 O Notus é uma plataforma fintech completa que oferece uma carteira digital segura para criptomoedas com integração WhatsApp, permitindo que usuários gerenciem seus ativos digitais através de uma interface intuitiva e acessível.
 
+## 🖥️ Interface do Sistema
+
+![Crypto Wallet Admin Panel](./public/admin-panel-screenshot.svg)
+
+*Painel administrativo do Notus - Interface moderna e intuitiva para gerenciamento completo da plataforma*
+
 ## 🏗️ Arquitetura
 
 O projeto é organizado como um **monorepo** com arquitetura de microserviços:
