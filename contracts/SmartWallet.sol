@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.22;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 
 /**
  * @title SmartWallet
@@ -35,7 +35,10 @@ contract SmartWallet is Ownable, ReentrancyGuard, Pausable {
     // Estado
     mapping(address => WalletInfo) public wallets;
     mapping(address => bool) public whitelistedTokens;
+    mapping(bytes32 => bool) public usedSignatures; // Para prevenir replay attacks
     uint256 public constant MAX_GUARDIANS = 3;
+    uint256 public constant RATE_LIMIT_PERIOD = 1 minutes; // Rate limiting
+    uint256 public constant MAX_TRANSACTIONS_PER_PERIOD = 10;
 
     // Modificadores
     modifier onlyWalletOwner(address wallet) {
@@ -49,19 +52,36 @@ contract SmartWallet is Ownable, ReentrancyGuard, Pausable {
         _;
     }
 
+    modifier rateLimited(address wallet) {
+        require(checkRateLimit(wallet), "Rate limit exceeded");
+        _;
+    }
+
+    modifier notContract() {
+        require(msg.sender == tx.origin, "Contracts not allowed");
+        _;
+    }
+
+    modifier validAddress(address addr) {
+        require(addr != address(0), "Invalid address");
+        require(addr != address(this), "Cannot use contract address");
+        _;
+    }
+
     /**
      * @dev Construtor
      */
-    constructor() {
+    constructor() Ownable(msg.sender) {
         _pause(); // Inicialmente pausado para configuração
     }
 
     /**
-     * @dev Cria uma nova carteira
+     * @dev Cria uma nova carteira com verificações de segurança
      * @param initialLimit Limite diário inicial
      */
-    function createWallet(uint256 initialLimit) external {
+    function createWallet(uint256 initialLimit) external notContract {
         require(!wallets[msg.sender].exists, "Wallet already exists");
+        require(initialLimit > 0, "Invalid initial limit");
         
         WalletInfo storage wallet = wallets[msg.sender];
         wallet.exists = true;
@@ -74,7 +94,7 @@ contract SmartWallet is Ownable, ReentrancyGuard, Pausable {
     }
 
     /**
-     * @dev Transfere tokens ERC20
+     * @dev Transfere tokens ERC20 com verificações de segurança
      * @param token Endereço do token
      * @param to Destinatário
      * @param amount Quantidade
@@ -83,29 +103,46 @@ contract SmartWallet is Ownable, ReentrancyGuard, Pausable {
         address token,
         address to,
         uint256 amount
-    ) external nonReentrant whenNotPaused onlyWalletOwner(msg.sender) withinLimits(msg.sender, amount) {
+    ) external nonReentrant whenNotPaused onlyWalletOwner(msg.sender) withinLimits(msg.sender, amount) rateLimited(msg.sender) validAddress(to) {
         require(whitelistedTokens[token], "Token not whitelisted");
         require(to != address(0), "Invalid recipient");
+        require(to != address(this), "Cannot transfer to contract");
         require(amount > 0, "Invalid amount");
 
+        // Verificar saldo do usuário
+        uint256 userBalance = IERC20(token).balanceOf(msg.sender);
+        require(userBalance >= amount, "Insufficient balance");
+
+        // Verificar allowance
+        uint256 allowance = IERC20(token).allowance(msg.sender, address(this));
+        require(allowance >= amount, "Insufficient allowance");
+
+        // Executar transferência
         IERC20(token).transferFrom(msg.sender, to, amount);
         updateSpentLimits(msg.sender, amount);
+        updateRateLimit(msg.sender);
 
         emit TokensTransferred(msg.sender, to, token, amount);
     }
 
     /**
-     * @dev Transfere tokens nativos (ETH/MATIC/BNB)
+     * @dev Transfere tokens nativos (ETH/MATIC/BNB) com verificações de segurança
      * @param to Destinatário
      */
     function transferNative(
         address payable to
-    ) external payable nonReentrant whenNotPaused onlyWalletOwner(msg.sender) withinLimits(msg.sender, msg.value) {
+    ) external payable nonReentrant whenNotPaused onlyWalletOwner(msg.sender) withinLimits(msg.sender, msg.value) rateLimited(msg.sender) validAddress(to) {
         require(to != address(0), "Invalid recipient");
+        require(to != address(this), "Cannot transfer to contract");
         require(msg.value > 0, "Invalid amount");
+        require(address(this).balance >= msg.value, "Insufficient contract balance");
 
-        to.transfer(msg.value);
+        // Executar transferência com verificação de sucesso
+        (bool success, ) = to.call{value: msg.value}("");
+        require(success, "Transfer failed");
+        
         updateSpentLimits(msg.sender, msg.value);
+        updateRateLimit(msg.sender);
 
         emit NativeTokenTransferred(msg.sender, to, msg.value);
     }
@@ -193,6 +230,35 @@ contract SmartWallet is Ownable, ReentrancyGuard, Pausable {
         WalletInfo storage info = wallets[wallet];
         info.dailySpent += amount;
         info.monthlySpent += amount;
+    }
+
+    /**
+     * @dev Verifica rate limiting
+     * @param wallet Endereço da carteira
+     */
+    function checkRateLimit(address wallet) internal view returns (bool) {
+        WalletInfo storage info = wallets[wallet];
+        
+        if (block.timestamp >= info.lastDayReset + RATE_LIMIT_PERIOD) {
+            return true; // Reset do período
+        }
+        
+        return info.guardiansCount < MAX_TRANSACTIONS_PER_PERIOD;
+    }
+
+    /**
+     * @dev Atualiza rate limiting após uma transação
+     * @param wallet Endereço da carteira
+     */
+    function updateRateLimit(address wallet) internal {
+        WalletInfo storage info = wallets[wallet];
+        
+        if (block.timestamp >= info.lastDayReset + RATE_LIMIT_PERIOD) {
+            info.guardiansCount = 1;
+            info.lastDayReset = block.timestamp;
+        } else {
+            info.guardiansCount++;
+        }
     }
 
     /**

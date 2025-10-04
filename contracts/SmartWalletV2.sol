@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.22;
 
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 
 /**
  * @title SmartWalletV2
@@ -111,6 +111,7 @@ contract SmartWalletV2 is
     mapping(address => bool) public whitelistedTokens;
     mapping(address => bool) public blacklistedAddresses;
     mapping(address => SecurityConfig) public securityConfigs;
+    mapping(bytes32 => bool) public usedSignatures; // Para prevenir replay attacks
     
     // Configurações padrão
     uint256 public constant DEFAULT_RECOVERY_DELAY = 24 hours;
@@ -166,9 +167,9 @@ contract SmartWalletV2 is
         __Pausable_init();
         __UUPSUpgradeable_init();
 
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(ADMIN_ROLE, msg.sender);
-        _setupRole(EMERGENCY_ROLE, msg.sender);
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(ADMIN_ROLE, msg.sender);
+        _grantRole(EMERGENCY_ROLE, msg.sender);
 
         _pause(); // Inicialmente pausado para configuração
     }
@@ -375,17 +376,29 @@ contract SmartWalletV2 is
     ) external nonReentrant whenNotPaused whenFunctionNotPaused(msg.sig) onlyWalletOwner(msg.sender) withinLimits(msg.sender, amount) withinRateLimit(msg.sender) notBlacklisted(to) {
         require(whitelistedTokens[token], "Token not whitelisted");
         require(to != address(0), "Invalid recipient");
+        require(to != address(this), "Cannot transfer to contract");
         require(amount > 0, "Invalid amount");
 
-        // Verifica assinatura
+        // Verificar saldo do usuário
+        uint256 userBalance = IERC20(token).balanceOf(msg.sender);
+        require(userBalance >= amount, "Insufficient balance");
+
+        // Verificar allowance
+        uint256 allowance = IERC20(token).allowance(msg.sender, address(this));
+        require(allowance >= amount, "Insufficient allowance");
+
+        // Verifica assinatura com timestamp para prevenir replay attacks
         bytes32 txHash = keccak256(abi.encodePacked(
             msg.sender,
             token,
             to,
             amount,
-            wallets[msg.sender].nonce
+            wallets[msg.sender].nonce,
+            block.timestamp
         ));
         require(verifySignature(txHash, signature, msg.sender), "Invalid signature");
+        require(!usedSignatures[txHash], "Signature already used");
+        usedSignatures[txHash] = true;
 
         // Incrementa nonce
         wallets[msg.sender].nonce++;
@@ -412,16 +425,21 @@ contract SmartWalletV2 is
         bytes calldata signature
     ) external payable nonReentrant whenNotPaused whenFunctionNotPaused(msg.sig) onlyWalletOwner(msg.sender) withinLimits(msg.sender, msg.value) withinRateLimit(msg.sender) notBlacklisted(to) {
         require(to != address(0), "Invalid recipient");
+        require(to != address(this), "Cannot transfer to contract");
         require(msg.value > 0, "Invalid amount");
+        require(address(this).balance >= msg.value, "Insufficient contract balance");
 
-        // Verifica assinatura
+        // Verifica assinatura com timestamp para prevenir replay attacks
         bytes32 txHash = keccak256(abi.encodePacked(
             msg.sender,
             to,
             msg.value,
-            wallets[msg.sender].nonce
+            wallets[msg.sender].nonce,
+            block.timestamp
         ));
         require(verifySignature(txHash, signature, msg.sender), "Invalid signature");
+        require(!usedSignatures[txHash], "Signature already used");
+        usedSignatures[txHash] = true;
 
         // Incrementa nonce
         wallets[msg.sender].nonce++;
@@ -432,8 +450,10 @@ contract SmartWalletV2 is
             return;
         }
 
-        // Executa transferência
-        to.transfer(msg.value);
+        // Executa transferência com verificação de sucesso
+        (bool success, ) = to.call{value: msg.value}("");
+        require(success, "Transfer failed");
+        
         updateSpentLimits(msg.sender, msg.value);
         updateRateLimit(msg.sender);
 

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.22;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
@@ -66,7 +66,7 @@ contract LiquidityPool is Ownable, ReentrancyGuard, Pausable {
         address _tokenA,
         address _tokenB,
         uint256 _fee
-    ) {
+    ) Ownable(msg.sender) {
         require(_tokenA != address(0) && _tokenB != address(0), "Invalid tokens");
         require(_fee <= 1000, "Fee too high"); // Max 10%
 
@@ -89,6 +89,15 @@ contract LiquidityPool is Ownable, ReentrancyGuard, Pausable {
         uint256 amountBMin
     ) external nonReentrant whenNotPaused returns (uint256 amountA, uint256 amountB, uint256 liquidity) {
         require(amountADesired >= amountAMin && amountBDesired >= amountBMin, "Insufficient desired amount");
+        require(amountADesired > 0 && amountBDesired > 0, "Invalid amounts");
+        
+        // Verificar saldos dos usuários
+        require(pool.tokenA.balanceOf(msg.sender) >= amountADesired, "Insufficient tokenA balance");
+        require(pool.tokenB.balanceOf(msg.sender) >= amountBDesired, "Insufficient tokenB balance");
+        
+        // Verificar allowances
+        require(pool.tokenA.allowance(msg.sender, address(this)) >= amountADesired, "Insufficient tokenA allowance");
+        require(pool.tokenB.allowance(msg.sender, address(this)) >= amountBDesired, "Insufficient tokenB allowance");
 
         if (pool.totalSupply == 0) {
             amountA = amountADesired;
@@ -138,6 +147,8 @@ contract LiquidityPool is Ownable, ReentrancyGuard, Pausable {
         uint256 amountBMin
     ) external nonReentrant whenNotPaused enoughLiquidity(liquidity) returns (uint256 amountA, uint256 amountB) {
         require(balances[msg.sender] >= liquidity, "Insufficient balance");
+        require(liquidity > 0, "Invalid liquidity amount");
+        require(amountAMin > 0 && amountBMin > 0, "Invalid minimum amounts");
 
         amountA = (liquidity * pool.reserveA) / pool.totalSupply;
         amountB = (liquidity * pool.reserveB) / pool.totalSupply;
@@ -176,6 +187,14 @@ contract LiquidityPool is Ownable, ReentrancyGuard, Pausable {
             "Invalid output token"
         );
         require(tokenIn != tokenOut, "Same tokens");
+        require(amountIn > 0, "Invalid input amount");
+        require(amountOutMin > 0, "Invalid minimum output");
+        
+        // Verificar saldo do usuário
+        require(IERC20(tokenIn).balanceOf(msg.sender) >= amountIn, "Insufficient balance");
+        
+        // Verificar allowance
+        require(IERC20(tokenIn).allowance(msg.sender, address(this)) >= amountIn, "Insufficient allowance");
 
         bool isTokenA = tokenIn == address(pool.tokenA);
         (uint256 reserveIn, uint256 reserveOut) = isTokenA
