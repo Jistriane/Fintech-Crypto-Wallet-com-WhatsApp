@@ -1,68 +1,92 @@
 import { Request, Response } from 'express';
-import { User, UserRepository } from '../interfaces/user';
 
-export class UserController {
-  constructor(private userRepository: UserRepository) {}
-
-  async getUsers(req: Request, res: Response) {
-    try {
-      const { page = 1, limit = 10 } = req.query;
-      const result = await this.userRepository.findAll(+page, +limit);
-      res.json({
-        ...result,
-        page: +page,
-        totalPages: Math.ceil(result.total / +limit)
-      });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
-    }
+// TODO: Implementar repositório real
+export async function getUsers(req: Request, res: Response) {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    // Mock data por enquanto
+    const users = [
+      { id: '1', name: 'Admin', email: 'admin@example.com', status: 'active' }
+    ];
+    res.json({
+      users,
+      total: 1,
+      page: +page,
+      totalPages: 1
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
   }
+}
 
-  async getUserStats(req: Request, res: Response) {
-    try {
-      const stats = await this.userRepository.getStats();
-      res.json(stats);
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
-    }
+export async function getUserStats(req: Request, res: Response) {
+  try {
+    // Mock data por enquanto
+    const stats = {
+      totalUsers: 1,
+      activeUsers: 1,
+      kycApproved: 0,
+      kycPending: 1
+    };
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
   }
+}
 
-  async getUserById(req: Request, res: Response) {
-    try {
-      const user = await this.userRepository.findById(req.params.id);
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      res.json(user);
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
-    }
+export async function getUserById(req: Request, res: Response) {
+  try {
+    // Mock data por enquanto
+    const user = {
+      id: req.params.id,
+      name: 'Admin',
+      email: 'admin@example.com',
+      status: 'active'
+    };
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
   }
+}
 
-  async updateUser(req: Request, res: Response) {
-    try {
-      const user = await this.userRepository.update(req.params.id, req.body);
-      res.json(user);
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
-    }
+export async function updateUser(req: Request, res: Response) {
+  try {
+    // Mock data por enquanto
+    const user = {
+      id: req.params.id,
+      ...req.body,
+      updatedAt: new Date().toISOString()
+    };
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
   }
+}
 
-  async blockUser(req: Request, res: Response) {
-    try {
-      const user = await this.userRepository.update(req.params.id, { status: 'blocked' });
-      res.json(user);
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
-    }
+export async function blockUser(req: Request, res: Response) {
+  try {
+    // Mock data por enquanto
+    const user = {
+      id: req.params.id,
+      status: 'blocked',
+      updatedAt: new Date().toISOString()
+    };
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
   }
+}
 
-  async unblockUser(req: Request, res: Response) {
-    try {
-      const user = await this.userRepository.update(req.params.id, { status: 'active' });
-      res.json(user);
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
-    }
+export async function unblockUser(req: Request, res: Response) {
+  try {
+    // Mock data por enquanto
+    const user = {
+      id: req.params.id,
+      status: 'active',
+      updatedAt: new Date().toISOString()
+    };
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
   }
 }

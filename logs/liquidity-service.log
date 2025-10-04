@@ -1,0 +1,17 @@
+
+> @fintech-crypto/liquidity-service@1.0.0 dev
+> ts-node-dev --respawn --transpile-only src/index.ts
+
+[INFO] 00:18:25 ts-node-dev ver. 2.0.0 (using ts-node ver. 10.9.2, typescript ver. 5.9.3)
+Error: listen EADDRINUSE: address already in use :::3336
+    at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+    at listenInCluster (node:net:1965:12)
+    at Server.listen (node:net:2067:7)
+    at Function.listen (/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/services/liquidity/node_modules/express/lib/application.js:635:24)
+    at file:///home/jistriane/Area%20de%20Trabalho/Notus/Fintech%20Crypto%20Wallet%20com%20WhatsApp/services/liquidity/src/index.ts:17:5
+    at ModuleJobSync.runSync (node:internal/modules/esm/module_job:437:37)
+    at ModuleLoader.importSyncForRequire (node:internal/modules/esm/loader:389:47)
+    at loadESMFromCJS (node:internal/modules/cjs/loader:1363:24)
+    at Module._compile (node:internal/modules/cjs/loader:1503:5)
+    at Module._compile (/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/services/liquidity/node_modules/source-map-support/source-map-support.js:521:25)
+[ERROR] 00:18:26 Error: listen EADDRINUSE: address already in use :::3336

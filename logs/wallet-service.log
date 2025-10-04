@@ -1,0 +1,17 @@
+
+> @fintech-crypto/wallet-service@1.0.0 dev
+> ts-node-dev --respawn --transpile-only src/index.ts
+
+[INFO] 00:18:25 ts-node-dev ver. 2.0.0 (using ts-node ver. 10.9.2, typescript ver. 5.9.3)
+Error: Cannot find module '/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/services/wallet-service/src/routes/wallet' imported from /home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/services/wallet-service/src/index.ts
+    at finalizeResolution (node:internal/modules/esm/resolve:283:11)
+    at moduleResolve (node:internal/modules/esm/resolve:952:10)
+    at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+    at ModuleLoader.#cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+    at ModuleLoader.getModuleJobForRequire (node:internal/modules/esm/loader:413:53)
+    at new ModuleJobSync (node:internal/modules/esm/module_job:375:34)
+    at ModuleLoader.importSyncForRequire (node:internal/modules/esm/loader:386:11)
+    at loadESMFromCJS (node:internal/modules/cjs/loader:1363:24)
+    at Module._compile (node:internal/modules/cjs/loader:1503:5)
+[ERROR] 00:18:26 Error: Cannot find module '/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/services/wallet-service/src/routes/wallet' imported from /home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/services/wallet-service/src/index.ts

@@ -2,16 +2,18 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/contracts/LiquidityPool.sol": {
-      "lastModificationDate": 1758902230721,
-      "contentHash": "5ca9ebbef7ff5b24e274ed7572e33370",
+      "lastModificationDate": 1759549197215,
+      "contentHash": "70faf579c6f41bbeeee580d36f25a50e",
       "sourceName": "contracts/LiquidityPool.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -31,29 +33,31 @@
       },
       "imports": [
         "@openzeppelin/contracts/token/ERC20/IERC20.sol",
-        "@openzeppelin/contracts/security/ReentrancyGuard.sol",
+        "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
         "@openzeppelin/contracts/access/Ownable.sol",
-        "@openzeppelin/contracts/security/Pausable.sol",
+        "@openzeppelin/contracts/utils/Pausable.sol",
         "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol"
       ],
       "versionPragmas": [
-        "^0.8.19"
+        "^0.8.22"
       ],
       "artifacts": [
         "LiquidityPool"
       ]
     },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/access/Ownable.sol": {
-      "lastModificationDate": 1759346609692,
-      "contentHash": "5a20b2cad87ddb61c7a3a6af21289e28",
+      "lastModificationDate": 1759549030202,
+      "contentHash": "d3c790edc9ccf808a17c5a6cd13614fd",
       "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -75,97 +79,25 @@
         "../utils/Context.sol"
       ],
       "versionPragmas": [
-        "^0.8.0"
+        "^0.8.20"
       ],
       "artifacts": [
         "Ownable"
       ]
     },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/security/ReentrancyGuard.sol": {
-      "lastModificationDate": 1759346609763,
-      "contentHash": "1535f8c0c68463f8c1b5239f7584e71f",
-      "sourceName": "@openzeppelin/contracts/security/ReentrancyGuard.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "ReentrancyGuard"
-      ]
-    },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/security/Pausable.sol": {
-      "lastModificationDate": 1759346609717,
-      "contentHash": "25c8108f36fdd472bc78d4c4af240c11",
-      "sourceName": "@openzeppelin/contracts/security/Pausable.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../utils/Context.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "Pausable"
-      ]
-    },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol": {
-      "lastModificationDate": 1759346609483,
-      "contentHash": "df36f7051335cd1e748b1b6463b7fdd3",
+      "lastModificationDate": 1759549030188,
+      "contentHash": "9261adf6457863de3e9892f51317ec89",
       "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -185,23 +117,25 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.0"
+        ">=0.4.16"
       ],
       "artifacts": [
         "IERC20"
       ]
     },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol": {
-      "lastModificationDate": 1759346609803,
-      "contentHash": "1b5d667d3740d866eca0352758e59827",
+      "lastModificationDate": 1759549030209,
+      "contentHash": "1fb9edee1d763745a62d0b1954998792",
       "sourceName": "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -221,27 +155,28 @@
       },
       "imports": [
         "../IERC20.sol",
-        "../extensions/IERC20Permit.sol",
-        "../../../utils/Address.sol"
+        "../../../interfaces/IERC1363.sol"
       ],
       "versionPragmas": [
-        "^0.8.0"
+        "^0.8.20"
       ],
       "artifacts": [
         "SafeERC20"
       ]
     },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/utils/Context.sol": {
-      "lastModificationDate": 1759346608514,
-      "contentHash": "f07feb4a44b1a4872370da5aa70e8e46",
+      "lastModificationDate": 1759549030124,
+      "contentHash": "67bfbc07588eb8683b3fd8f6f909563e",
       "sourceName": "@openzeppelin/contracts/utils/Context.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -261,23 +196,25 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.0"
+        "^0.8.20"
       ],
       "artifacts": [
         "Context"
       ]
     },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/utils/Address.sol": {
-      "lastModificationDate": 1759346608414,
-      "contentHash": "211ffd288c1588ba8c10eae668ca3c66",
+      "lastModificationDate": 1759549030119,
+      "contentHash": "2a06d82f31f75087bf90231599da4f1c",
       "sourceName": "@openzeppelin/contracts/utils/Address.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -295,9 +232,11 @@
           }
         }
       },
-      "imports": [],
+      "imports": [
+        "./Errors.sol"
+      ],
       "versionPragmas": [
-        "^0.8.1"
+        "^0.8.20"
       ],
       "artifacts": [
         "Address"
@@ -339,59 +278,19 @@
         "IERC20Permit"
       ]
     },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol": {
-      "lastModificationDate": 1759346608886,
-      "contentHash": "a127706394bead18392601a20d44867a",
-      "sourceName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../beacon/IBeacon.sol",
-        "../../interfaces/IERC1967.sol",
-        "../../interfaces/draft-IERC1822.sol",
-        "../../utils/Address.sol",
-        "../../utils/StorageSlot.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.2"
-      ],
-      "artifacts": [
-        "ERC1967Upgrade"
-      ]
-    },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/interfaces/IERC1967.sol": {
-      "lastModificationDate": 1759346609477,
-      "contentHash": "d0d060231a45da7a1eecbb5cd286fa40",
+      "lastModificationDate": 1759549030188,
+      "contentHash": "3c9577899f440b0c66e880c96e9250bb",
       "sourceName": "@openzeppelin/contracts/interfaces/IERC1967.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -411,23 +310,25 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.0"
+        ">=0.4.11"
       ],
       "artifacts": [
         "IERC1967"
       ]
     },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/interfaces/draft-IERC1822.sol": {
-      "lastModificationDate": 1759346608666,
-      "contentHash": "2858d98e74e67987ec81b39605230b74",
+      "lastModificationDate": 1759549030134,
+      "contentHash": "9b2cafd2153b51bcfd7f4cb4cfc975aa",
       "sourceName": "@openzeppelin/contracts/interfaces/draft-IERC1822.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -447,23 +348,25 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.0"
+        ">=0.4.16"
       ],
       "artifacts": [
         "IERC1822Proxiable"
       ]
     },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/utils/StorageSlot.sol": {
-      "lastModificationDate": 1759346609830,
-      "contentHash": "682f7dd1f2e1147c8390e7575deceb2d",
+      "lastModificationDate": 1759549030211,
+      "contentHash": "e656d64c4ce918f3d13030b91c935134",
       "sourceName": "@openzeppelin/contracts/utils/StorageSlot.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -483,23 +386,25 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.0"
+        "^0.8.20"
       ],
       "artifacts": [
         "StorageSlot"
       ]
     },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/proxy/beacon/IBeacon.sol": {
-      "lastModificationDate": 1759346609366,
-      "contentHash": "b6bd23bf19e90b771337037706470933",
+      "lastModificationDate": 1759549030182,
+      "contentHash": "ee2e46607ed2be58bd554306d068acba",
       "sourceName": "@openzeppelin/contracts/proxy/beacon/IBeacon.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -519,23 +424,25 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.0"
+        ">=0.4.16"
       ],
       "artifacts": [
         "IBeacon"
       ]
     },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol": {
-      "lastModificationDate": 1759346608872,
-      "contentHash": "3fc3c7c0a2956f36e766691bb9473b06",
+      "lastModificationDate": 1759549030148,
+      "contentHash": "07e13052976ae13746455b10ebf3cff9",
       "sourceName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -555,26 +462,28 @@
       },
       "imports": [
         "../Proxy.sol",
-        "./ERC1967Upgrade.sol"
+        "./ERC1967Utils.sol"
       ],
       "versionPragmas": [
-        "^0.8.0"
+        "^0.8.22"
       ],
       "artifacts": [
         "ERC1967Proxy"
       ]
     },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/proxy/Proxy.sol": {
-      "lastModificationDate": 1759346609738,
-      "contentHash": "40b3d81a836d50ff47e03893dcaaf204",
+      "lastModificationDate": 1759549030206,
+      "contentHash": "35308c2fa7be99a959494c37e8257c16",
       "sourceName": "@openzeppelin/contracts/proxy/Proxy.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -594,23 +503,25 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.0"
+        "^0.8.20"
       ],
       "artifacts": [
         "Proxy"
       ]
     },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/contracts/SmartWalletProxy.sol": {
-      "lastModificationDate": 1759391637531,
+      "lastModificationDate": 1759391713826,
       "contentHash": "67fcf10f1737c0bf5d0f1cc82b690509",
       "sourceName": "contracts/SmartWalletProxy.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -639,16 +550,18 @@
       ]
     },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol": {
-      "lastModificationDate": 1759346609490,
-      "contentHash": "909ab67fc5c25033fe6cd364f8c056f9",
+      "lastModificationDate": 1759549030189,
+      "contentHash": "513778b30d2750f5d2b9b19bbcf748a5",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -670,23 +583,25 @@
         "../IERC20.sol"
       ],
       "versionPragmas": [
-        "^0.8.0"
+        ">=0.6.2"
       ],
       "artifacts": [
         "IERC20Metadata"
       ]
     },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol": {
-      "lastModificationDate": 1759346608927,
-      "contentHash": "3ae5166c6827a9cf1a7a462d1632b464",
+      "lastModificationDate": 1759549030151,
+      "contentHash": "59dfce11284f2636db261df9b6a18f81",
       "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -707,26 +622,29 @@
       "imports": [
         "./IERC20.sol",
         "./extensions/IERC20Metadata.sol",
-        "../../utils/Context.sol"
+        "../../utils/Context.sol",
+        "../../interfaces/draft-IERC6093.sol"
       ],
       "versionPragmas": [
-        "^0.8.0"
+        "^0.8.20"
       ],
       "artifacts": [
         "ERC20"
       ]
     },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/contracts/SmartWalletV2.sol": {
-      "lastModificationDate": 1759391656617,
-      "contentHash": "130e55b69ca5256ffd52b7f9bad0047c",
+      "lastModificationDate": 1759549176270,
+      "contentHash": "691243aafc8d609fee9e8021aa61946d",
       "sourceName": "contracts/SmartWalletV2.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -746,69 +664,33 @@
       },
       "imports": [
         "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol",
-        "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol",
-        "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol",
+        "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol",
+        "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol",
         "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol",
         "@openzeppelin/contracts/token/ERC20/IERC20.sol",
         "@openzeppelin/contracts/utils/cryptography/ECDSA.sol",
-        "@openzeppelin/contracts/security/Pausable.sol"
+        "@openzeppelin/contracts/utils/Pausable.sol"
       ],
       "versionPragmas": [
-        "^0.8.19"
+        "^0.8.22"
       ],
       "artifacts": [
         "SmartWalletV2"
       ]
     },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol": {
-      "lastModificationDate": 1759346609846,
-      "contentHash": "2c309ab8cb953d5db2a280f534c113cd",
-      "sourceName": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../proxy/utils/Initializable.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "ReentrancyGuardUpgradeable"
-      ]
-    },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol": {
-      "lastModificationDate": 1759346608680,
-      "contentHash": "e755cb2313878e08bcbc64c75b169c1e",
+      "lastModificationDate": 1759549030330,
+      "contentHash": "1460918cfe408f7a514ff980f638fecc",
       "sourceName": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -827,69 +709,32 @@
         }
       },
       "imports": [
-        "./IAccessControlUpgradeable.sol",
+        "@openzeppelin/contracts/access/IAccessControl.sol",
         "../utils/ContextUpgradeable.sol",
-        "../utils/StringsUpgradeable.sol",
+        "@openzeppelin/contracts/utils/introspection/IERC165.sol",
         "../utils/introspection/ERC165Upgradeable.sol",
         "../proxy/utils/Initializable.sol"
       ],
       "versionPragmas": [
-        "^0.8.0"
+        "^0.8.20"
       ],
       "artifacts": [
         "AccessControlUpgradeable"
       ]
     },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol": {
-      "lastModificationDate": 1759346609826,
-      "contentHash": "6a4b611a83035a19370ecd7eb445d4fc",
-      "sourceName": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../utils/ContextUpgradeable.sol",
-        "../proxy/utils/Initializable.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "PausableUpgradeable"
-      ]
-    },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol": {
-      "lastModificationDate": 1759346609974,
-      "contentHash": "c50df4f62eb9ef48d89b3a48a57e3bf5",
+      "lastModificationDate": 1759549030375,
+      "contentHash": "08db0b4bea3d52072346c326c5b857b7",
       "sourceName": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -908,104 +753,30 @@
         }
       },
       "imports": [
-        "../../interfaces/draft-IERC1822Upgradeable.sol",
-        "../ERC1967/ERC1967UpgradeUpgradeable.sol",
+        "@openzeppelin/contracts/interfaces/draft-IERC1822.sol",
+        "@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol",
         "./Initializable.sol"
       ],
       "versionPragmas": [
-        "^0.8.0"
+        "^0.8.22"
       ],
       "artifacts": [
         "UUPSUpgradeable"
       ]
     },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/utils/cryptography/ECDSA.sol": {
-      "lastModificationDate": 1759346608685,
-      "contentHash": "d822a8a9468649cab463f29f5decf5cc",
+      "lastModificationDate": 1759549030137,
+      "contentHash": "81de029d56aa803972be03c5d277cb6c",
       "sourceName": "@openzeppelin/contracts/utils/cryptography/ECDSA.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../Strings.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "ECDSA"
-      ]
-    },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": {
-      "lastModificationDate": 1759346609733,
-      "contentHash": "b0970a564d121abf9adfff8d1a01eb16",
-      "sourceName": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../../utils/AddressUpgradeable.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.2"
-      ],
-      "artifacts": [
-        "Initializable"
-      ]
-    },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": {
-      "lastModificationDate": 1759346608687,
-      "contentHash": "c30c805386fda8a42ff515da963d3a95",
-      "sourceName": "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -1025,23 +796,63 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.1"
+        "^0.8.20"
       ],
       "artifacts": [
-        "AddressUpgradeable"
+        "ECDSA"
       ]
     },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": {
-      "lastModificationDate": 1759346608764,
-      "contentHash": "b6dfb72ff1fd764f725ec4db364b1b20",
-      "sourceName": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol",
+    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": {
+      "lastModificationDate": 1759549030367,
+      "contentHash": "2acae54ad209714bca07edf4bae32f72",
+      "sourceName": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "Initializable"
+      ]
+    },
+    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": {
+      "lastModificationDate": 1759549030333,
+      "contentHash": "c28aaa25d083a9a55bd9ec9e0b785122",
+      "sourceName": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.8.22",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -1063,62 +874,25 @@
         "../proxy/utils/Initializable.sol"
       ],
       "versionPragmas": [
-        "^0.8.0"
+        "^0.8.20"
       ],
       "artifacts": [
         "ContextUpgradeable"
       ]
     },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol": {
-      "lastModificationDate": 1759346609936,
-      "contentHash": "c221361be1c4953f5b71f47475b90266",
-      "sourceName": "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "./math/MathUpgradeable.sol",
-        "./math/SignedMathUpgradeable.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "StringsUpgradeable"
-      ]
-    },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol": {
-      "lastModificationDate": 1759346609112,
-      "contentHash": "7cd9c9d1dccf4a894c0f6926f5b6ac3d",
+      "lastModificationDate": 1759549030344,
+      "contentHash": "4d250f562322f9c023c5503064ffc12f",
       "sourceName": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -1137,345 +911,14 @@
         }
       },
       "imports": [
-        "./IERC165Upgradeable.sol",
+        "@openzeppelin/contracts/utils/introspection/IERC165.sol",
         "../../proxy/utils/Initializable.sol"
       ],
       "versionPragmas": [
-        "^0.8.0"
+        "^0.8.20"
       ],
       "artifacts": [
         "ERC165Upgradeable"
-      ]
-    },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol": {
-      "lastModificationDate": 1759346609437,
-      "contentHash": "21b43d1337ebc77c11da3cbe3fd65316",
-      "sourceName": "@openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "IAccessControlUpgradeable"
-      ]
-    },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/utils/math/SignedMathUpgradeable.sol": {
-      "lastModificationDate": 1759346609920,
-      "contentHash": "2a6b819b2e241091ada6d645df3e3929",
-      "sourceName": "@openzeppelin/contracts-upgradeable/utils/math/SignedMathUpgradeable.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "SignedMathUpgradeable"
-      ]
-    },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/utils/math/MathUpgradeable.sol": {
-      "lastModificationDate": 1759346609802,
-      "contentHash": "5a2a749b45b6a8eb035f4bf75addcb27",
-      "sourceName": "@openzeppelin/contracts-upgradeable/utils/math/MathUpgradeable.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "MathUpgradeable"
-      ]
-    },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/utils/introspection/IERC165Upgradeable.sol": {
-      "lastModificationDate": 1759346609526,
-      "contentHash": "d6ecf203a5e72c845be9bbf2f304a289",
-      "sourceName": "@openzeppelin/contracts-upgradeable/utils/introspection/IERC165Upgradeable.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "IERC165Upgradeable"
-      ]
-    },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/interfaces/draft-IERC1822Upgradeable.sol": {
-      "lastModificationDate": 1759346608929,
-      "contentHash": "a6883cfd85607b16c121a02728369eb3",
-      "sourceName": "@openzeppelin/contracts-upgradeable/interfaces/draft-IERC1822Upgradeable.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "IERC1822ProxiableUpgradeable"
-      ]
-    },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol": {
-      "lastModificationDate": 1759346609130,
-      "contentHash": "e186f91201ca317278fffbf1ea60cea0",
-      "sourceName": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../beacon/IBeaconUpgradeable.sol",
-        "../../interfaces/IERC1967Upgradeable.sol",
-        "../../interfaces/draft-IERC1822Upgradeable.sol",
-        "../../utils/AddressUpgradeable.sol",
-        "../../utils/StorageSlotUpgradeable.sol",
-        "../utils/Initializable.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.2"
-      ],
-      "artifacts": [
-        "ERC1967UpgradeUpgradeable"
-      ]
-    },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/interfaces/IERC1967Upgradeable.sol": {
-      "lastModificationDate": 1759346609541,
-      "contentHash": "a5421a5e611067b9202e83329fbf6fc7",
-      "sourceName": "@openzeppelin/contracts-upgradeable/interfaces/IERC1967Upgradeable.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "IERC1967Upgradeable"
-      ]
-    },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/utils/StorageSlotUpgradeable.sol": {
-      "lastModificationDate": 1759346609930,
-      "contentHash": "02cf959b00ba5c650708472f195f8b29",
-      "sourceName": "@openzeppelin/contracts-upgradeable/utils/StorageSlotUpgradeable.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "StorageSlotUpgradeable"
-      ]
-    },
-    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/proxy/beacon/IBeaconUpgradeable.sol": {
-      "lastModificationDate": 1759346609472,
-      "contentHash": "21bffd733b4ca013e125a0ffe2e52254",
-      "sourceName": "@openzeppelin/contracts-upgradeable/proxy/beacon/IBeaconUpgradeable.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "IBeaconUpgradeable"
       ]
     },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/utils/Strings.sol": {
@@ -1590,16 +1033,18 @@
       ]
     },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/contracts/test/ReentrancyAttacker.sol": {
-      "lastModificationDate": 1759391648659,
+      "lastModificationDate": 1759391713827,
       "contentHash": "fe39ed94c462c3b2054c6582ee7c4b46",
       "sourceName": "contracts/test/ReentrancyAttacker.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -1628,16 +1073,18 @@
       ]
     },
     "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/contracts/SmartWallet.sol": {
-      "lastModificationDate": 1758902230720,
-      "contentHash": "714729fbeaf47821cff6374e5bf33b80",
+      "lastModificationDate": 1759549187892,
+      "contentHash": "4f110c1a4ca257bdfb7e1bced4851c23",
       "sourceName": "contracts/SmartWallet.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -1657,12 +1104,12 @@
       },
       "imports": [
         "@openzeppelin/contracts/access/Ownable.sol",
-        "@openzeppelin/contracts/security/ReentrancyGuard.sol",
+        "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
         "@openzeppelin/contracts/token/ERC20/IERC20.sol",
-        "@openzeppelin/contracts/security/Pausable.sol"
+        "@openzeppelin/contracts/utils/Pausable.sol"
       ],
       "versionPragmas": [
-        "^0.8.19"
+        "^0.8.22"
       ],
       "artifacts": [
         "SmartWallet"
@@ -1673,12 +1120,14 @@
       "contentHash": "9fa43f648ac7f05b2c109f2bd0f860b5",
       "sourceName": "contracts/test/MockERC20.sol",
       "solcConfig": {
-        "version": "0.8.19",
+        "version": "0.8.22",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -1704,6 +1153,523 @@
       ],
       "artifacts": [
         "MockERC20"
+      ]
+    },
+    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/utils/ReentrancyGuard.sol": {
+      "lastModificationDate": 1759549030206,
+      "contentHash": "190613e556d509d9e9a0ea43dc5d891d",
+      "sourceName": "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
+      "solcConfig": {
+        "version": "0.8.22",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "ReentrancyGuard"
+      ]
+    },
+    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/utils/Pausable.sol": {
+      "lastModificationDate": 1759549030206,
+      "contentHash": "0d47b53e10b1985efbb396f937626279",
+      "sourceName": "@openzeppelin/contracts/utils/Pausable.sol",
+      "solcConfig": {
+        "version": "0.8.22",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "Pausable"
+      ]
+    },
+    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/interfaces/IERC1363.sol": {
+      "lastModificationDate": 1759549030187,
+      "contentHash": "a7fd0f05e36b0d0a21c75340c9c639ec",
+      "sourceName": "@openzeppelin/contracts/interfaces/IERC1363.sol",
+      "solcConfig": {
+        "version": "0.8.22",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC20.sol",
+        "./IERC165.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.2"
+      ],
+      "artifacts": [
+        "IERC1363"
+      ]
+    },
+    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/interfaces/IERC20.sol": {
+      "lastModificationDate": 1759549030188,
+      "contentHash": "68620db2da7583d9a4919096ac77f577",
+      "sourceName": "@openzeppelin/contracts/interfaces/IERC20.sol",
+      "solcConfig": {
+        "version": "0.8.22",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../token/ERC20/IERC20.sol"
+      ],
+      "versionPragmas": [
+        ">=0.4.16"
+      ],
+      "artifacts": []
+    },
+    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/interfaces/IERC165.sol": {
+      "lastModificationDate": 1759549030187,
+      "contentHash": "947853028399b7de34bcc3704ee06e99",
+      "sourceName": "@openzeppelin/contracts/interfaces/IERC165.sol",
+      "solcConfig": {
+        "version": "0.8.22",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/introspection/IERC165.sol"
+      ],
+      "versionPragmas": [
+        ">=0.4.16"
+      ],
+      "artifacts": []
+    },
+    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol": {
+      "lastModificationDate": 1759549030187,
+      "contentHash": "7074c93b1ea0a122063f26ddd1db1032",
+      "sourceName": "@openzeppelin/contracts/utils/introspection/IERC165.sol",
+      "solcConfig": {
+        "version": "0.8.22",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.4.16"
+      ],
+      "artifacts": [
+        "IERC165"
+      ]
+    },
+    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol": {
+      "lastModificationDate": 1759549030371,
+      "contentHash": "a77dad8312dfaddab72fab403ee0c0a6",
+      "sourceName": "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.8.22",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/ContextUpgradeable.sol",
+        "../proxy/utils/Initializable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "PausableUpgradeable"
+      ]
+    },
+    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol": {
+      "lastModificationDate": 1759549030372,
+      "contentHash": "24562076b21756e3358ede5e844008ce",
+      "sourceName": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.8.22",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../proxy/utils/Initializable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "ReentrancyGuardUpgradeable"
+      ]
+    },
+    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/access/IAccessControl.sol": {
+      "lastModificationDate": 1759549030179,
+      "contentHash": "def1e8f7b6cac577cf2600655bf3bdf8",
+      "sourceName": "@openzeppelin/contracts/access/IAccessControl.sol",
+      "solcConfig": {
+        "version": "0.8.22",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "IAccessControl"
+      ]
+    },
+    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol": {
+      "lastModificationDate": 1759549030149,
+      "contentHash": "2741625b983eb412cfdd8aa55a7671c1",
+      "sourceName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol",
+      "solcConfig": {
+        "version": "0.8.22",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../beacon/IBeacon.sol",
+        "../../interfaces/IERC1967.sol",
+        "../../utils/Address.sol",
+        "../../utils/StorageSlot.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.21"
+      ],
+      "artifacts": [
+        "ERC1967Utils"
+      ]
+    },
+    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/utils/Errors.sol": {
+      "lastModificationDate": 1759549030170,
+      "contentHash": "6b5eac2b85500c3012977849cfd633d8",
+      "sourceName": "@openzeppelin/contracts/utils/Errors.sol",
+      "solcConfig": {
+        "version": "0.8.22",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "Errors"
+      ]
+    },
+    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/node_modules/@openzeppelin/contracts/interfaces/draft-IERC6093.sol": {
+      "lastModificationDate": 1759549030135,
+      "contentHash": "5041977bbe908de2e6ed0270447f79ad",
+      "sourceName": "@openzeppelin/contracts/interfaces/draft-IERC6093.sol",
+      "solcConfig": {
+        "version": "0.8.22",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "IERC1155Errors",
+        "IERC20Errors",
+        "IERC721Errors"
+      ]
+    },
+    "/home/jistriane/Area de Trabalho/Notus/Fintech Crypto Wallet com WhatsApp/contracts/SmartWalletFixed.sol": {
+      "lastModificationDate": 1759549192657,
+      "contentHash": "dc148a28d3ab2560372daf00eafc26a0",
+      "sourceName": "contracts/SmartWalletFixed.sol",
+      "solcConfig": {
+        "version": "0.8.22",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "@openzeppelin/contracts/utils/Pausable.sol",
+        "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.22"
+      ],
+      "artifacts": [
+        "SmartWalletFixed"
       ]
     }
   }
