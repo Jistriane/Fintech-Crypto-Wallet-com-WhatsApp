@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model KycDocument {
+  id          String   @id @default(uuid())
+  userId      String
+  type        String
+  status      String   @default("pending")
+  url         String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  verifiedAt  DateTime?
+  verifiedBy  String?
+
+  @@map("kyc_documents")
+}
+
+model KycVerification {
+  id          String   @id @default(uuid())
+  userId      String
+  status      String   @default("pending")
+  level       String   @default("basic")
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  verifiedAt  DateTime?
+  verifiedBy  String?
+
+  @@map("kyc_verifications")
+}
+
+model KycAuditLog {
+  id          String   @id @default(uuid())
+  userId      String
+  action      String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  createdBy   String
+
+  @@map("kyc_audit_logs")
+}
+
+model KycRiskScore {
+  id          String   @id @default(uuid())
+  userId      String
+  score       Float
+  level       String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  calculatedBy String
+
+  @@map("kyc_risk_scores")
+}
+
+model KycBlacklist {
+  id          String   @id @default(uuid())
+  userId      String
+  reason      String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String
+
+  @@map("kyc_blacklist")
+}

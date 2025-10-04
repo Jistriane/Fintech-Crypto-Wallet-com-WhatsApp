@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model LiquidityPool {
+  id            String   @id @default(uuid())
+  name          String
+  token0Id      String
+  token0Symbol  String
+  token1Id      String
+  token1Symbol  String
+  address       String   @unique
+  network       String
+  totalLiquidity Float
+  volume24h     Float
+  fees24h       Float
+  apy           Float
+  status        String   @default("active")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  positions     Position[]
+  swaps         Swap[]
+
+  @@map("liquidity_pools")
+}
+
+model Position {
+  id            String   @id @default(uuid())
+  poolId        String
+  pool          LiquidityPool @relation(fields: [poolId], references: [id])
+  userId        String
+  token0Amount  String
+  token1Amount  String
+  liquidity     String
+  status        String   @default("active")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("positions")
+}
+
+model Swap {
+  id            String   @id @default(uuid())
+  poolId        String
+  pool          LiquidityPool @relation(fields: [poolId], references: [id])
+  userId        String
+  tokenInId     String
+  tokenInSymbol String
+  tokenInAmount String
+  tokenOutId    String
+  tokenOutSymbol String
+  tokenOutAmount String
+  txHash        String   @unique
+  status        String   @default("pending")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("swaps")
+}
+
+model PriceOracle {
+  id            String   @id @default(uuid())
+  tokenId       String
+  symbol        String
+  price         Float
+  source        String
+  lastUpdate    DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("price_oracles")
+}
+
+model LiquidityAuditLog {
+  id            String   @id @default(uuid())
+  userId        String
+  action        String
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  createdBy     String
+
+  @@map("liquidity_audit_logs")
+}

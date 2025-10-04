@@ -1,50 +1,19 @@
-# Estágio de build
-FROM node:18-alpine AS builder
-
-# Instalação de dependências do sistema
-RUN apk add --no-cache python3 make g++ git
-
-# Instalação do TypeScript globalmente
-RUN npm install -g typescript
-
-# Diretório de trabalho
-WORKDIR /app
-
-# Criar diretórios necessários
-RUN mkdir -p packages/common/dist packages/common/node_modules \
-    services/notification-service/dist services/notification-service/node_modules
-
-# Arquivos de configuração do projeto
-COPY package*.json ./
-COPY packages/common/package*.json ./packages/common/
-COPY services/notification-service/package*.json ./services/notification-service/
-
-# Instalação de dependências
-RUN npm install --legacy-peer-deps --ignore-scripts
-
-# Build do pacote comum
-COPY packages/common ./packages/common
-COPY tsconfig.json ./
-RUN cd packages/common && tsc --skipLibCheck || true
-
-# Build do serviço de notificação
-COPY services/notification-service ./services/notification-service
-RUN cd services/notification-service && tsc --skipLibCheck || true
-
-# Estágio de produção
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Criar diretórios necessários
-RUN mkdir -p packages/common/dist packages/common/node_modules \
-    services/notification-service/dist services/notification-service/node_modules
+# Copiar apenas os arquivos necessários para instalar dependências
+COPY package*.json .npmrc ./
 
-# Copia os artefatos de build
-COPY --from=builder /app/packages/common/dist ./packages/common/dist
-COPY --from=builder /app/packages/common/node_modules ./packages/common/node_modules
-COPY --from=builder /app/services/notification-service/dist ./services/notification-service/dist
-COPY --from=builder /app/services/notification-service/node_modules ./services/notification-service/node_modules
+# Instalar dependências com flags para evitar problemas
+RUN npm install --legacy-peer-deps --no-package-lock
 
-# Comando para iniciar o serviço
-CMD ["node", "services/notification-service/dist/index.js"]
+# Copiar o resto dos arquivos
+COPY . .
+
+# Gerar cliente Prisma
+RUN npx prisma generate
+
+EXPOSE 3337
+
+CMD ["npm", "run", "dev"]

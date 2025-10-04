@@ -2,188 +2,122 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:13-alpine
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: fintech_dev
-    ports:
-      - "5433:5432"
+      POSTGRES_MULTIPLE_DATABASES: auth_service,wallet_service,kyc_service,liquidity_service,notification_service
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres:/docker-entrypoint-initdb.d
+    networks:
+      - app_network
 
   redis:
-    image: redis:alpine
+    image: redis:7-alpine
     ports:
-      - "6380:6379"
+      - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - app_network
 
-  rabbitmq:
-    image: rabbitmq:3-management
+  auth_service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
     ports:
-      - "5673:5672"
-      - "15673:15672"
+      - "3333:3333"
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-
-  kong:
-    image: kong:latest
-    environment:
-      KONG_DATABASE: 'off'
-      KONG_PROXY_ACCESS_LOG: /dev/stdout
-      KONG_ADMIN_ACCESS_LOG: /dev/stdout
-      KONG_PROXY_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_LISTEN: 0.0.0.0:8001
-      KONG_PROXY_LISTEN: 0.0.0.0:8000
-    ports:
-      - "8000:8000"
-      - "8001:8001"
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/auth_service?schema=public
+      - REDIS_URL=redis://redis:6379
     depends_on:
       - postgres
+      - redis
+    networks:
+      - app_network
 
-  prometheus:
-    image: prom/prometheus:latest
-    volumes:
-      - ./config/prometheus:/etc/prometheus
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
+  wallet_service:
+    build:
+      context: ./services/wallet-service
+      dockerfile: Dockerfile
     ports:
-      - "9090:9090"
-
-  grafana:
-    image: grafana/grafana:latest
+      - "3334:3334"
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/wallet_service?schema=public
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app_network
+
+  kyc_service:
+    build:
+      context: ./services/kyc
+      dockerfile: Dockerfile
+    ports:
+      - "3335:3335"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/kyc_service?schema=public
+    depends_on:
+      - postgres
+    networks:
+      - app_network
+
+  liquidity_service:
+    build:
+      context: ./services/liquidity
+      dockerfile: Dockerfile
+    ports:
+      - "3336:3336"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/liquidity_service?schema=public
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app_network
+
+  notification_service:
+    build:
+      context: ./services/notification-service
+      dockerfile: Dockerfile
+    ports:
+      - "3337:3337"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/notification_service?schema=public
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app_network
+
+  admin:
+    build:
+      context: ./crypto-wallet-admin
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    volumes:
-      - grafana_data:/var/lib/grafana
-    depends_on:
-      - prometheus
-
-  auth-service:
-    build:
-      context: .
-      dockerfile: services/auth-service/Dockerfile
     environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/fintech_dev
-      - REDIS_URL=redis://redis:6379
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-    ports:
-      - "3001:3001"
+      - NEXT_PUBLIC_API_URL=http://auth_service:3333
     depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-
-  wallet-service:
-    build:
-      context: .
-      dockerfile: services/wallet-service/Dockerfile
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/fintech_dev
-      - REDIS_URL=redis://redis:6379
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-    ports:
-      - "3002:3002"
-    depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-
-  kyc-service:
-    build:
-      context: .
-      dockerfile: services/kyc-service/Dockerfile
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/fintech_dev
-      - REDIS_URL=redis://redis:6379
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-    ports:
-      - "3003:3003"
-    depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-
-  defi-service:
-    build:
-      context: .
-      dockerfile: services/defi-service/Dockerfile
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/fintech_dev
-      - REDIS_URL=redis://redis:6379
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-    ports:
-      - "3004:3004"
-    depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-
-  liquidity-service:
-    build:
-      context: .
-      dockerfile: services/liquidity-service/Dockerfile
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/fintech_dev
-      - REDIS_URL=redis://redis:6379
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-    ports:
-      - "3005:3005"
-    depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-
-  notification-service:
-    build:
-      context: .
-      dockerfile: services/notification-service/Dockerfile
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/fintech_dev
-      - REDIS_URL=redis://redis:6379
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-    ports:
-      - "3006:3006"
-    depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-
-  analytics-service:
-    build:
-      context: .
-      dockerfile: services/analytics-service/Dockerfile
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/fintech_dev
-      - REDIS_URL=redis://redis:6379
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-    ports:
-      - "3007:3007"
-    depends_on:
-      - postgres
-      - redis
-      - rabbitmq
+      - auth_service
+      - wallet_service
+      - kyc_service
+      - liquidity_service
+      - notification_service
+    networks:
+      - app_network
 
 volumes:
   postgres_data:
   redis_data:
-  prometheus_data:
-  grafana_data:
+
+networks:
+  app_network:
+    driver: bridge

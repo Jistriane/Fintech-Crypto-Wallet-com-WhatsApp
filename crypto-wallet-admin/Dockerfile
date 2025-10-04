@@ -3,7 +3,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copiar apenas os arquivos necessários para instalar dependências
-COPY package*.json .npmrc ./
+COPY package*.json ./
 
 # Instalar dependências com flags para evitar problemas
 RUN npm install --legacy-peer-deps --no-package-lock
@@ -11,9 +11,6 @@ RUN npm install --legacy-peer-deps --no-package-lock
 # Copiar o resto dos arquivos
 COPY . .
 
-# Gerar cliente Prisma
-RUN npx prisma generate
-
-EXPOSE 3336
+EXPOSE 3000
 
 CMD ["npm", "run", "dev"]

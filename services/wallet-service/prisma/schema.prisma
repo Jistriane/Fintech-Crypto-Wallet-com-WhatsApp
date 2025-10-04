@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Token {
+  id          String    @id @default(uuid())
+  symbol      String
+  name        String
+  decimals    Int
+  address     String    @unique
+  network     String
+  price       Json
+  volume24h   Float
+  marketCap   Float
+  status      String    @default("active")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  balances    Balance[]
+  transfers   Transfer[]
+
+  @@map("tokens")
+}
+
+model Balance {
+  id        String   @id @default(uuid())
+  tokenId   String
+  token     Token    @relation(fields: [tokenId], references: [id])
+  walletId  String
+  wallet    Wallet   @relation(fields: [walletId], references: [id])
+  amount    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("balances")
+}
+
+model Wallet {
+  id           String     @id @default(uuid())
+  address      String     @unique
+  network      String
+  balance      Json
+  status       String     @default("active")
+  lastActivity DateTime   @default(now())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  balances     Balance[]
+  fromTransfers Transfer[] @relation("FromTransfers")
+  toTransfers   Transfer[] @relation("ToTransfers")
+
+  @@map("wallets")
+}
+
+model Transfer {
+  id            String   @id @default(uuid())
+  tokenId       String
+  token         Token    @relation(fields: [tokenId], references: [id])
+  fromWalletId  String
+  fromWallet    Wallet   @relation("FromTransfers", fields: [fromWalletId], references: [id])
+  toWalletId    String
+  toWallet      Wallet   @relation("ToTransfers", fields: [toWalletId], references: [id])
+  amount        String
+  amountUsd     Float
+  txHash        String   @unique
+  status        String   @default("pending")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("transfers")
+}
+
+model Transaction {
+  id            String   @id @default(uuid())
+  walletId      String
+  type          String
+  amount        String
+  amountUsd     Float
+  txHash        String   @unique
+  status        String   @default("pending")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("transactions")
+}

@@ -1,82 +1,68 @@
 import { Request, Response } from 'express';
+import { WalletRepository } from '../interfaces/wallet';
 
-// Mock data for development
-const mockWallets = [
-  {
-    id: '1',
-    address: '0x1234567890abcdef',
-    network: 'ethereum',
-    balance: {
-      native: '1.5',
-      usd: 2500.00
-    },
-    status: 'active',
-    lastActivity: new Date().toISOString(),
-    user: {
-      id: '1',
-      name: 'John Doe',
-      email: 'john@example.com'
+export class WalletController {
+  constructor(private walletRepository: WalletRepository) {}
+
+  async getWallets(req: Request, res: Response) {
+    try {
+      const { page = 1, limit = 10 } = req.query;
+      const result = await this.walletRepository.findAll(+page, +limit);
+      res.json({
+        ...result,
+        page: +page,
+        totalPages: Math.ceil(result.total / +limit)
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
     }
   }
-];
 
-const mockStats = {
-  totalWallets: 100,
-  activeWallets: 75,
-  totalVolume24h: '150.5',
-  totalTransactions24h: 1250
-};
-
-export const getWallets = (req: Request, res: Response) => {
-  const { page = 1, limit = 10 } = req.query;
-  const startIndex = (+page - 1) * +limit;
-  const endIndex = startIndex + +limit;
-
-  const paginatedWallets = mockWallets.slice(startIndex, endIndex);
-  
-  res.json({
-    wallets: paginatedWallets,
-    total: mockWallets.length,
-    page: +page,
-    totalPages: Math.ceil(mockWallets.length / +limit)
-  });
-};
-
-export const getWalletStats = (req: Request, res: Response) => {
-  res.json(mockStats);
-};
-
-export const getWalletById = (req: Request, res: Response) => {
-  const wallet = mockWallets.find(w => w.id === req.params.id);
-  if (!wallet) {
-    return res.status(404).json({ error: 'Wallet not found' });
+  async getWalletStats(req: Request, res: Response) {
+    try {
+      const stats = await this.walletRepository.getStats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
-  res.json(wallet);
-};
 
-export const updateWallet = (req: Request, res: Response) => {
-  const wallet = mockWallets.find(w => w.id === req.params.id);
-  if (!wallet) {
-    return res.status(404).json({ error: 'Wallet not found' });
+  async getWalletById(req: Request, res: Response) {
+    try {
+      const wallet = await this.walletRepository.findById(req.params.id);
+      if (!wallet) {
+        return res.status(404).json({ error: 'Wallet not found' });
+      }
+      res.json(wallet);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
-  Object.assign(wallet, req.body);
-  res.json(wallet);
-};
 
-export const blockWallet = (req: Request, res: Response) => {
-  const wallet = mockWallets.find(w => w.id === req.params.id);
-  if (!wallet) {
-    return res.status(404).json({ error: 'Wallet not found' });
+  async updateWallet(req: Request, res: Response) {
+    try {
+      const wallet = await this.walletRepository.update(req.params.id, req.body);
+      res.json(wallet);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
-  wallet.status = 'blocked';
-  res.json(wallet);
-};
 
-export const unblockWallet = (req: Request, res: Response) => {
-  const wallet = mockWallets.find(w => w.id === req.params.id);
-  if (!wallet) {
-    return res.status(404).json({ error: 'Wallet not found' });
+  async blockWallet(req: Request, res: Response) {
+    try {
+      const wallet = await this.walletRepository.block(req.params.id);
+      res.json(wallet);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
-  wallet.status = 'active';
-  res.json(wallet);
-};
+
+  async unblockWallet(req: Request, res: Response) {
+    try {
+      const wallet = await this.walletRepository.unblock(req.params.id);
+      res.json(wallet);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+}

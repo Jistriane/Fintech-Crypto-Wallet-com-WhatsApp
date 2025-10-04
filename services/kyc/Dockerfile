@@ -1,33 +1,19 @@
-# Estende a imagem base
-FROM fintech-crypto-wallet-base AS builder
+FROM node:20-alpine
 
-# Copia os arquivos do serviço
-COPY services/kyc/package.json ./services/kyc/
-COPY services/kyc/tsconfig.json ./services/kyc/
-COPY services/kyc/src ./services/kyc/src
+WORKDIR /app
 
-# Build do serviço
-WORKDIR /app/services/kyc
-RUN yarn build
+# Copiar apenas os arquivos necessários para instalar dependências
+COPY package*.json .npmrc ./
 
-# Imagem final
-FROM node:18-alpine
+# Instalar dependências com flags para evitar problemas
+RUN npm install --legacy-peer-deps --no-package-lock
 
-WORKDIR /app/services/kyc
+# Copiar o resto dos arquivos
+COPY . .
 
-# Copia apenas os arquivos necessários
-COPY --from=builder /app/services/kyc/dist ./dist
-COPY --from=builder /app/services/kyc/package.json ./
-COPY --from=builder /app/node_modules ./node_modules
+# Gerar cliente Prisma
+RUN npx prisma generate
 
-# Configurações específicas do serviço KYC
-ENV SERVICE_NAME=kyc-service
-ENV SERVICE_PORT=3000
+EXPOSE 3335
 
-# Healthcheck específico do serviço KYC
-HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health/kyc || exit 1
-
-EXPOSE 3000
-
-CMD ["node", "dist/index.js"]
+CMD ["npm", "run", "dev"]

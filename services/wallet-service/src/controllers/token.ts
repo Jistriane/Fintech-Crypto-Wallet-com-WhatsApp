@@ -1,63 +1,77 @@
 import { Request, Response } from 'express';
+import { TokenRepository } from '../interfaces/token';
 
-// Mock data for development
-const mockTokens = [
-  {
-    id: '1',
-    symbol: 'ETH',
-    name: 'Ethereum',
-    decimals: 18,
-    address: '0x0000000000000000000000000000000000000000',
-    network: 'ethereum',
-    price: {
-      usd: 1650.00,
-      change24h: 2.5
-    },
-    volume24h: 1500000,
-    marketCap: 200000000000,
-    status: 'active'
+export class TokenController {
+  constructor(private tokenRepository: TokenRepository) {}
+
+  async getTokens(req: Request, res: Response) {
+    try {
+      const { page = 1, limit = 10 } = req.query;
+      const result = await this.tokenRepository.findAll(+page, +limit);
+      res.json({
+        ...result,
+        page: +page,
+        totalPages: Math.ceil(result.total / +limit)
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
-];
 
-const mockStats = {
-  totalTokens: 100,
-  activeTokens: 80,
-  totalVolume24h: 15000000,
-  totalMarketCap: 500000000000
-};
-
-export const getTokens = (req: Request, res: Response) => {
-  const { page = 1, limit = 10 } = req.query;
-  const startIndex = (+page - 1) * +limit;
-  const endIndex = startIndex + +limit;
-
-  const paginatedTokens = mockTokens.slice(startIndex, endIndex);
-  
-  res.json({
-    tokens: paginatedTokens,
-    total: mockTokens.length,
-    page: +page,
-    totalPages: Math.ceil(mockTokens.length / +limit)
-  });
-};
-
-export const getTokenStats = (req: Request, res: Response) => {
-  res.json(mockStats);
-};
-
-export const getTokenById = (req: Request, res: Response) => {
-  const token = mockTokens.find(t => t.id === req.params.id);
-  if (!token) {
-    return res.status(404).json({ error: 'Token not found' });
+  async getTokenStats(req: Request, res: Response) {
+    try {
+      const stats = await this.tokenRepository.getStats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
-  res.json(token);
-};
 
-export const updateToken = (req: Request, res: Response) => {
-  const token = mockTokens.find(t => t.id === req.params.id);
-  if (!token) {
-    return res.status(404).json({ error: 'Token not found' });
+  async getTokenById(req: Request, res: Response) {
+    try {
+      const token = await this.tokenRepository.findById(req.params.id);
+      if (!token) {
+        return res.status(404).json({ error: 'Token not found' });
+      }
+      res.json(token);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
-  Object.assign(token, req.body);
-  res.json(token);
-};
+
+  async updateToken(req: Request, res: Response) {
+    try {
+      const token = await this.tokenRepository.update(req.params.id, req.body);
+      res.json(token);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  async blockToken(req: Request, res: Response) {
+    try {
+      const token = await this.tokenRepository.block(req.params.id);
+      res.json(token);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  async unblockToken(req: Request, res: Response) {
+    try {
+      const token = await this.tokenRepository.unblock(req.params.id);
+      res.json(token);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  async refreshTokenPrice(req: Request, res: Response) {
+    try {
+      const token = await this.tokenRepository.refreshPrice(req.params.id);
+      res.json(token);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+}
