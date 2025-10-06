@@ -23,6 +23,12 @@ const config: HardhatUserConfig = {
     hardhat: {
       chainId: 31337
     },
+    mainnet: {
+      url: process.env.ETHEREUM_RPC_URL || "https://mainnet.infura.io/v3/YOUR_PROJECT_ID",
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: 1,
+      gasPrice: "auto"
+    },
     polygon: {
       url: process.env.POLYGON_RPC_URL || "",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
@@ -41,6 +47,7 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
+      mainnet: process.env.ETHERSCAN_API_KEY || "",
       polygon: process.env.POLYGONSCAN_API_KEY || "",
       bsc: process.env.BSCSCAN_API_KEY || ""
     }

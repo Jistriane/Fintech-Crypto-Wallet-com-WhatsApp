@@ -10,7 +10,9 @@ export const walletService = {
   async getWallets(
     page = 1,
     limit = 10,
-    filters?: WalletFilters
+    filters?: WalletFilters,
+    connectedWallet?: string,
+    connectedNetwork?: string
   ): Promise<{ wallets: Wallet[]; total: number }> {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -18,7 +20,15 @@ export const walletService = {
       ...filters,
     });
 
-    const { data } = await api.get(`/wallets?${params}`);
+    const headers: any = {};
+    if (connectedWallet) {
+      headers['x-connected-wallet'] = connectedWallet;
+    }
+    if (connectedNetwork) {
+      headers['x-connected-network'] = connectedNetwork;
+    }
+
+    const { data } = await api.get(`/wallets?${params}`, { headers });
     return data;
   },
 
@@ -38,8 +48,16 @@ export const walletService = {
     return data;
   },
 
-  async getWalletStats(): Promise<WalletStats> {
-    const { data } = await api.get('/wallets/stats');
+  async getWalletStats(connectedWallet?: string, connectedNetwork?: string): Promise<WalletStats> {
+    const headers: any = {};
+    if (connectedWallet) {
+      headers['x-connected-wallet'] = connectedWallet;
+    }
+    if (connectedNetwork) {
+      headers['x-connected-network'] = connectedNetwork;
+    }
+
+    const { data } = await api.get('/wallets/stats', { headers });
     return data;
   },
 

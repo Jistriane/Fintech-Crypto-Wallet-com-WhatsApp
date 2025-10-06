@@ -29,6 +29,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
+    // Verifica se está no cliente
+    if (typeof window === 'undefined') {
+      setLoading(false);
+      return;
+    }
+
     const token = localStorage.getItem('auth_token');
     if (!token) {
       setLoading(false);
@@ -45,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Erro ao verificar autenticação:', error);
       // Limpa o token inválido
-      localStorage.removeItem('token');
+      localStorage.removeItem('auth_token');
     } finally {
       setLoading(false);
     }

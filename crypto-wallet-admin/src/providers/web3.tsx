@@ -1,27 +1,29 @@
 'use client';
 
-import { createConfig, configureChains, WagmiConfig } from 'wagmi';
+import { createConfig, WagmiConfig } from 'wagmi';
 import { mainnet, polygon, bsc } from 'wagmi/chains';
 import { InjectedConnector } from 'wagmi/connectors/injected';
-import { publicProvider } from 'wagmi/providers/public';
-
-const { chains, publicClient } = configureChains(
-  [mainnet, polygon, bsc],
-  [publicProvider()]
-);
+import { http } from 'viem';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState } from 'react';
 
 const config = createConfig({
-  autoConnect: true,
-  publicClient,
+  chains: [mainnet, polygon, bsc],
   connectors: [
     new InjectedConnector({
-      chains,
+      chains: [mainnet, polygon, bsc],
       options: {
         name: 'MetaMask',
         shimDisconnect: true,
       },
     }),
   ],
+  transports: {
+    [mainnet.id]: http(),
+    [polygon.id]: http(),
+    [bsc.id]: http(),
+  },
+  ssr: true,
 });
 
 interface Web3ProviderProps {
@@ -29,9 +31,20 @@ interface Web3ProviderProps {
 }
 
 export function Web3Provider({ children }: Web3ProviderProps) {
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        refetchOnWindowFocus: false,
+      },
+    },
+  }));
+
   return (
-    <WagmiConfig config={config}>
-      {children}
-    </WagmiConfig>
+    <QueryClientProvider client={queryClient}>
+      <WagmiConfig config={config}>
+        {children}
+      </WagmiConfig>
+    </QueryClientProvider>
   );
 }

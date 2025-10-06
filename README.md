@@ -332,6 +332,26 @@ kubectl apply -f infrastructure/kubernetes/
 docker stack deploy -c docker-compose.swarm.yml notus
 ```
 
+### Deploy dos Contratos
+
+**🪙 Crypto Necessária: ETH (Ethereum)**
+
+```bash
+# 1. Configurar ambiente
+cp config/deploy/.env-deploy .env
+
+# 2. Obter ETH para gas fees (0.05-0.1 ETH)
+# Comprar em: Binance, Coinbase, Kraken, etc.
+
+# 3. Deploy em testnet (recomendado)
+npx hardhat run scripts/deploy-contracts.ts --network goerli
+
+# 4. Deploy em mainnet
+npx hardhat run scripts/deploy-contracts.ts --network mainnet
+```
+
+**📋 Guia Completo**: [Deploy dos Contratos](./docs/deploy-contracts-guide.md)
+
 ## 🤝 Contribuição
 
 1. Fork o projeto

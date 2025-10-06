@@ -27,8 +27,10 @@ import {
 import { formatAddress, formatNumber, formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
+import { useAccount } from 'wagmi';
 
 export default function WalletsPage() {
+  const { address, isConnected } = useAccount();
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [stats, setStats] = useState<WalletStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,9 +40,12 @@ export default function WalletsPage() {
   const [selectedNetwork, setSelectedNetwork] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
 
+  // Usar Ethereum como padrão
+  const getNetworkName = () => 'Ethereum';
+
   useEffect(() => {
     loadData();
-  }, [page, search, selectedNetwork, selectedStatus]);
+  }, [page, search, selectedNetwork, selectedStatus, address, isConnected]);
 
   async function loadData() {
     try {
@@ -52,8 +57,17 @@ export default function WalletsPage() {
       };
 
       const [walletsData, statsData] = await Promise.all([
-        walletService.getWallets(page, 10, filters),
-        walletService.getWalletStats(),
+        walletService.getWallets(
+          page, 
+          10, 
+          filters, 
+          isConnected ? address : undefined,
+          isConnected ? getNetworkName() : undefined
+        ),
+        walletService.getWalletStats(
+          isConnected ? address : undefined,
+          isConnected ? getNetworkName() : undefined
+        ),
       ]);
 
       setWallets(walletsData.wallets);
@@ -98,6 +112,30 @@ export default function WalletsPage() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!isConnected) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Carteiras</h1>
+          <p className="text-muted-foreground">
+            Gerencie as carteiras dos usuários
+          </p>
+        </div>
+        
+        <Card className="p-8 text-center">
+          <WalletIcon className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+          <h3 className="text-xl font-semibold mb-2">Nenhuma carteira conectada</h3>
+          <p className="text-muted-foreground mb-4">
+            Conecte sua carteira para visualizar e gerenciar suas carteiras.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Use o botão "Conectar Carteira" no cabeçalho para conectar sua carteira MetaMask.
+          </p>
+        </Card>
       </div>
     );
   }

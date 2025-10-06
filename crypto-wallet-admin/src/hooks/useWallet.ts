@@ -20,17 +20,27 @@ export function useWallet() {
   // Verifica se a rede atual é suportada
   const isChainSupported = useCallback(() => {
     if (!chainId) return false;
-    return Object.values(SUPPORTED_CHAINS).some(
-      (supportedChain) => supportedChain.id === chainId
-    );
+    try {
+      return Object.values(SUPPORTED_CHAINS).some(
+        (supportedChain) => supportedChain.id === chainId
+      );
+    } catch (error) {
+      console.error('Erro ao verificar rede suportada:', error);
+      return false;
+    }
   }, [chainId]);
 
   // Obtém o nome da rede atual
   const getCurrentChain = useCallback(() => {
     if (!chainId) return null;
-    return Object.entries(SUPPORTED_CHAINS).find(
-      ([, value]) => value.id === chainId
-    )?.[0];
+    try {
+      return Object.entries(SUPPORTED_CHAINS).find(
+        ([, value]) => value.id === chainId
+      )?.[0];
+    } catch (error) {
+      console.error('Erro ao obter rede atual:', error);
+      return null;
+    }
   }, [chainId]);
 
   // Conecta a carteira

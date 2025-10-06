@@ -1,4 +1,4 @@
-import { useAccount, useChainId, useBalance, useDisconnect } from 'wagmi';
+import { useAccount, useBalance, useDisconnect } from 'wagmi';
 import { useConnect } from 'wagmi';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
@@ -6,29 +6,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { formatEther } from 'viem';
 import { useCallback } from 'react';
 
-const chainInfo = {
-  1: { name: 'Ethereum', symbol: 'ETH', icon: Icons.eth },
-  137: { name: 'Polygon', symbol: 'MATIC', icon: Icons.polygon },
-  56: { name: 'BSC', symbol: 'BNB', icon: Icons.bnb },
-  42161: { name: 'Arbitrum', symbol: 'ETH', icon: Icons.arbitrum },
-} as const;
-
 export function ConnectWallet() {
   const { address, isConnected } = useAccount();
-  const chainId = useChainId();
   const { data: balance } = useBalance({ address });
   const { disconnect } = useDisconnect();
 
   const formatAddress = useCallback((addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-  }, []);
-
-  const getChainInfo = useCallback((id: number) => {
-    return chainInfo[id as keyof typeof chainInfo] || { 
-      name: 'Unknown Network', 
-      symbol: 'ETH',
-      icon: Icons.eth
-    };
   }, []);
 
   const { connect, connectors } = useConnect();
@@ -51,17 +35,14 @@ export function ConnectWallet() {
     );
   }
 
-  const chain = getChainInfo(chainId);
-  const ChainIcon = chain.icon;
-
   return (
     <Card>
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <ChainIcon className="h-8 w-8" />
+            <Icons.eth className="h-8 w-8" />
             <div>
-              <div className="font-medium">{chain.name}</div>
+              <div className="font-medium">Carteira Conectada</div>
               <div className="text-sm text-muted-foreground">
                 {formatAddress(address)}
               </div>
@@ -70,7 +51,7 @@ export function ConnectWallet() {
           <div className="flex items-center space-x-4">
             <div className="text-right">
               <div className="font-medium">
-                {balance ? formatEther(balance.value) : '0'} {chain.symbol}
+                {balance ? formatEther(balance.value) : '0'} ETH
               </div>
               <div className="text-sm text-muted-foreground">
                 Saldo

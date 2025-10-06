@@ -1,11 +1,10 @@
 'use client';
 
-import { useWallet } from '@/hooks/useWallet';
+import { useWalletSafe } from '@/hooks/useWalletSafe';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Wallet, ChevronDown, ExternalLink, Power } from 'lucide-react';
 import { useState } from 'react';
-import Image from 'next/image';
 
 export function ConnectButton() {
   const {
@@ -13,10 +12,9 @@ export function ConnectButton() {
     disconnect,
     isConnected,
     isLoading,
-    walletInfo,
-    isChainSupported,
-    supportedChains,
-  } = useWallet();
+    address,
+    balance,
+  } = useWalletSafe();
 
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -28,19 +26,11 @@ export function ConnectButton() {
     );
   }
 
-  if (!isConnected || !walletInfo) {
+  if (!isConnected || !address) {
     return (
       <Button onClick={connect} variant="outline">
         <Wallet className="mr-2 h-4 w-4" />
         Conectar Carteira
-      </Button>
-    );
-  }
-
-  if (!isChainSupported()) {
-    return (
-      <Button onClick={connect} variant="destructive">
-        Rede Não Suportada
       </Button>
     );
   }
@@ -52,15 +42,9 @@ export function ConnectButton() {
         onClick={() => setShowDropdown(!showDropdown)}
         className="flex items-center space-x-2"
       >
-        <Image
-          src={`/chains/${walletInfo.chain}.png`}
-          alt={walletInfo.chain}
-          width={20}
-          height={20}
-          className="rounded-full"
-        />
+        <Wallet className="h-4 w-4" />
         <span className="hidden md:inline">
-          {walletInfo.address.slice(0, 6)}...{walletInfo.address.slice(-4)}
+          {address.slice(0, 6)}...{address.slice(-4)}
         </span>
         <ChevronDown className="h-4 w-4" />
       </Button>
@@ -71,10 +55,10 @@ export function ConnectButton() {
             <p className="text-sm text-muted-foreground">Carteira</p>
             <div className="flex items-center justify-between">
               <p className="font-mono text-sm">
-                {walletInfo.address.slice(0, 6)}...{walletInfo.address.slice(-4)}
+                {address.slice(0, 6)}...{address.slice(-4)}
               </p>
               <a
-                href={`${supportedChains[walletInfo.chain].blockExplorers.default.url}/address/${walletInfo.address}`}
+                href={`https://etherscan.io/address/${address}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-500 hover:text-blue-700"
@@ -87,8 +71,7 @@ export function ConnectButton() {
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">Saldo</p>
             <p className="font-medium">
-              {Number(walletInfo.balance).toFixed(4)}{' '}
-              {supportedChains[walletInfo.chain].nativeCurrency.symbol}
+              {Number(balance).toFixed(4)} ETH
             </p>
           </div>
 
