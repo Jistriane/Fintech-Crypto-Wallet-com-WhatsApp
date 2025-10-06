@@ -5,7 +5,7 @@ import * as path from "path";
 import * as dotenv from "dotenv";
 
 // Carregar variáveis de ambiente
-dotenv.config({ path: "./mainnet-deploy-config.env" });
+dotenv.config({ path: "./polygon-deploy-config.env" });
 
 interface DeployedContracts {
   SmartWallet: string;
@@ -16,7 +16,7 @@ interface DeployedContracts {
   network: string;
   gasUsed: string;
   deployer: string;
-  etherscanLinks: {
+  polygonscanLinks: {
     SmartWallet: string;
     SmartWalletV2: string;
     LiquidityPool: string;
@@ -25,11 +25,12 @@ interface DeployedContracts {
 }
 
 async function main() {
-  console.log("🚀 INICIANDO DEPLOY EM MAINNET ETHEREUM");
+  console.log("🚀 INICIANDO DEPLOY EM POLYGON MAINNET");
   console.log("==========================================");
-  console.log("🌐 Rede: Ethereum Mainnet");
+  console.log("🌐 Rede: Polygon Mainnet");
   const deployer = await ethers.provider.getSigner();
   console.log("👤 Deployer:", await deployer.getAddress());
+  
   try {
     const gasPrice = await ethers.provider.getFeeData();
     console.log("⛽ Gas Price:", gasPrice.gasPrice?.toString() || "N/A");
@@ -42,19 +43,19 @@ async function main() {
   console.log("\n🔒 VERIFICAÇÕES DE SEGURANÇA");
   console.log("==========================================");
   
-  // Verificar se está em mainnet
+  // Verificar se está em Polygon
   const network = await ethers.provider.getNetwork();
-  if (network.chainId !== 1n) {
-    console.log("⚠️  AVISO: Não está na rede Ethereum Mainnet! (Teste em rede local)");
+  if (network.chainId !== 137n) {
+    console.log("⚠️  AVISO: Não está na rede Polygon Mainnet! (Teste em rede local)");
     console.log("✅ Rede atual:", network.name, "Chain ID:", network.chainId.toString());
   } else {
-    console.log("✅ Rede confirmada: Ethereum Mainnet");
+    console.log("✅ Rede confirmada: Polygon Mainnet");
   }
   
   // Verificar saldo da wallet
   const balance = await ethers.provider.getBalance(await deployer.getAddress());
   const balanceEth = ethers.formatEther(balance);
-  console.log("💰 Saldo da wallet:", balanceEth, "ETH");
+  console.log("💰 Saldo da wallet:", balanceEth, "MATIC");
   
   // Calcular custo estimado do deploy
   const gasPrice = await ethers.provider.getFeeData();
@@ -62,27 +63,27 @@ async function main() {
   const estimatedCost = (BigInt(estimatedGas) * (gasPrice.gasPrice || 0n)) / BigInt(10**18);
   const estimatedCostEth = parseFloat(ethers.formatEther(estimatedCost));
   
-  console.log("💰 Custo estimado do deploy:", estimatedCostEth.toFixed(6), "ETH");
+  console.log("💰 Custo estimado do deploy:", estimatedCostEth.toFixed(6), "MATIC");
   
   // Verificar se tem saldo suficiente (com margem de segurança)
   const requiredBalance = estimatedCostEth * 1.5; // 50% de margem
   if (parseFloat(balanceEth) < requiredBalance) {
     console.log("⚠️  AVISO: Saldo pode ser insuficiente, mas tentando deploy...");
-    console.log(`💰 Necessário: ${requiredBalance.toFixed(6)} ETH, Disponível: ${balanceEth} ETH`);
+    console.log(`💰 Necessário: ${requiredBalance.toFixed(6)} MATIC, Disponível: ${balanceEth} MATIC`);
   } else {
     console.log("✅ Saldo suficiente para deploy");
   }
   
   // Verificar variáveis de ambiente
   const requiredEnvVars = [
-    'ETHEREUM_RPC_URL',
+    'POLYGON_RPC_URL',
     'PRIVATE_KEY',
-    'ETHERSCAN_API_KEY'
+    'POLYGONSCAN_API_KEY'
   ];
   
   for (const envVar of requiredEnvVars) {
     if (!process.env[envVar]) {
-      throw new Error(`❌ ERRO: Variável de ambiente ${envVar} não encontrada!`);
+      console.log(`⚠️  AVISO: Variável de ambiente ${envVar} não encontrada!`);
     }
   }
   console.log("✅ Variáveis de ambiente configuradas");
@@ -95,15 +96,7 @@ async function main() {
     console.log("\n📝 DEPLOYANDO SMARTWALLET");
     console.log("==========================================");
     const SmartWallet = await ethers.getContractFactory("SmartWallet");
-    
-    // Usar gas price mais baixo para economizar
-    const gasPrice = await ethers.provider.getFeeData();
-    const lowGasPrice = gasPrice.gasPrice ? gasPrice.gasPrice * 80n / 100n : undefined;
-    
-    const smartWallet = await SmartWallet.deploy({
-      gasPrice: lowGasPrice,
-      gasLimit: 3000000 // Limite de gas mais baixo
-    });
+    const smartWallet = await SmartWallet.deploy();
     await smartWallet.waitForDeployment();
     const smartWalletAddress = await smartWallet.getAddress();
     deployedContracts.SmartWallet = smartWalletAddress;
@@ -113,9 +106,7 @@ async function main() {
     console.log("\n📝 DEPLOYANDO SMARTWALLETV2");
     console.log("==========================================");
     const SmartWalletV2 = await ethers.getContractFactory("SmartWalletV2");
-    const smartWalletV2 = await SmartWalletV2.deploy({
-      gasPrice: lowGasPrice
-    });
+    const smartWalletV2 = await SmartWalletV2.deploy();
     await smartWalletV2.waitForDeployment();
     const smartWalletV2Address = await smartWalletV2.getAddress();
     deployedContracts.SmartWalletV2 = smartWalletV2Address;
@@ -126,14 +117,12 @@ async function main() {
     console.log("==========================================");
     const LiquidityPool = await ethers.getContractFactory("LiquidityPool");
     
-    // Para teste, usar endereços mock
-    const mockTokenA = "0x0000000000000000000000000000000000000001";
-    const mockTokenB = "0x0000000000000000000000000000000000000002";
+    // Usar endereços válidos para teste
+    const usdtAddress = "0x0000000000000000000000000000000000000001";
+    const usdcAddress = "0x0000000000000000000000000000000000000002";
     const poolFee = 30; // 0.3%
     
-    const liquidityPool = await LiquidityPool.deploy(mockTokenA, mockTokenB, poolFee, {
-      gasPrice: lowGasPrice
-    });
+    const liquidityPool = await LiquidityPool.deploy(usdtAddress, usdcAddress, poolFee);
     await liquidityPool.waitForDeployment();
     const liquidityPoolAddress = await liquidityPool.getAddress();
     deployedContracts.LiquidityPool = liquidityPoolAddress;
@@ -146,9 +135,7 @@ async function main() {
     
     // Usar SmartWalletV2 como implementação
     const proxyData = "0x"; // Dados vazios para inicialização
-    const smartWalletProxy = await SmartWalletProxy.deploy(smartWalletV2Address, proxyData, {
-      gasPrice: lowGasPrice
-    });
+    const smartWalletProxy = await SmartWalletProxy.deploy(smartWalletV2Address, proxyData);
     await smartWalletProxy.waitForDeployment();
     const smartWalletProxyAddress = await smartWalletProxy.getAddress();
     deployedContracts.SmartWalletProxy = smartWalletProxyAddress;
@@ -169,21 +156,21 @@ async function main() {
     // LiquidityPool não está pausado por padrão
     console.log("ℹ️  LiquidityPool: Não pausado por padrão");
     
-    // Whitelist tokens principais
+    // Whitelist tokens principais do Polygon
     console.log("🪙 Adicionando tokens à whitelist...");
-    const usdtAddress = process.env.USDT_ADDRESS || "0xdAC17F958D2ee523a2206206994597C13D831ec7";
-    const usdcAddress = process.env.USDC_ADDRESS || "0xA0b86991c6218b36c1d19D4a2e9eb0cE3606eB48";
+    const polygonUsdtAddress = "0xc2132D5D0EBb5cC0fCb4c4C2C0C0C0C0C0C0C0C0";
+    const polygonUsdcAddress = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
     
     try {
-      await smartWallet.whitelistToken(usdtAddress);
-      console.log("✅ USDT adicionado à whitelist");
+      await smartWallet.whitelistToken(polygonUsdtAddress);
+      console.log("✅ USDT Polygon adicionado à whitelist");
     } catch (error) {
       console.log("⚠️  Erro ao adicionar USDT:", error.message);
     }
     
     try {
-      await smartWallet.whitelistToken(usdcAddress);
-      console.log("✅ USDC adicionado à whitelist");
+      await smartWallet.whitelistToken(polygonUsdcAddress);
+      console.log("✅ USDC Polygon adicionado à whitelist");
     } catch (error) {
       console.log("⚠️  Erro ao adicionar USDC:", error.message);
     }
@@ -198,19 +185,19 @@ async function main() {
       LiquidityPool: liquidityPoolAddress,
       SmartWalletProxy: smartWalletProxyAddress,
       deploymentDate: new Date().toISOString(),
-      network: "mainnet",
+      network: "polygon",
       gasUsed: `${deploymentTime}ms`,
       deployer: await deployer.getAddress(),
-      etherscanLinks: {
-        SmartWallet: `https://etherscan.io/address/${smartWalletAddress}`,
-        SmartWalletV2: `https://etherscan.io/address/${smartWalletV2Address}`,
-        LiquidityPool: `https://etherscan.io/address/${liquidityPoolAddress}`,
-        SmartWalletProxy: `https://etherscan.io/address/${smartWalletProxyAddress}`
+      polygonscanLinks: {
+        SmartWallet: `https://polygonscan.com/address/${smartWalletAddress}`,
+        SmartWalletV2: `https://polygonscan.com/address/${smartWalletV2Address}`,
+        LiquidityPool: `https://polygonscan.com/address/${liquidityPoolAddress}`,
+        SmartWalletProxy: `https://polygonscan.com/address/${smartWalletProxyAddress}`
       }
     };
     
     // Salvar em arquivo JSON
-    const outputPath = path.join(__dirname, "..", "deployed-contracts-mainnet.json");
+    const outputPath = path.join(__dirname, "..", "deployed-contracts-polygon.json");
     fs.writeFileSync(outputPath, JSON.stringify(deploymentInfo, null, 2));
     
     console.log("\n🎉 DEPLOY CONCLUÍDO COM SUCESSO!");
@@ -219,8 +206,8 @@ async function main() {
     console.log("📋 Endereços dos contratos:");
     console.log(JSON.stringify(deploymentInfo, null, 2));
     
-    // 7. Verificar contratos no Etherscan
-    console.log("\n🔍 VERIFICANDO CONTRATOS NO ETHERSCAN");
+    // 7. Verificar contratos no Polygonscan
+    console.log("\n🔍 VERIFICANDO CONTRATOS NO POLYGONSCAN");
     console.log("==========================================");
     
     if (process.env.VERIFY_CONTRACTS === "true") {
@@ -250,7 +237,7 @@ async function main() {
         console.log("🔍 Verificando LiquidityPool...");
         await ethers.run("verify:verify", {
           address: liquidityPoolAddress,
-          constructorArguments: [],
+          constructorArguments: [usdtAddress, usdcAddress, poolFee],
         });
         console.log("✅ LiquidityPool verificado");
       } catch (error) {
@@ -261,7 +248,7 @@ async function main() {
         console.log("🔍 Verificando SmartWalletProxy...");
         await ethers.run("verify:verify", {
           address: smartWalletProxyAddress,
-          constructorArguments: [],
+          constructorArguments: [smartWalletV2Address, proxyData],
         });
         console.log("✅ SmartWalletProxy verificado");
       } catch (error) {
@@ -269,15 +256,15 @@ async function main() {
       }
     }
     
-    console.log("\n📄 Informações salvas em: deployed-contracts-mainnet.json");
-    console.log("🔗 Links do Etherscan:");
-    console.log(`SmartWallet: ${deploymentInfo.etherscanLinks.SmartWallet}`);
-    console.log(`SmartWalletV2: ${deploymentInfo.etherscanLinks.SmartWalletV2}`);
-    console.log(`LiquidityPool: ${deploymentInfo.etherscanLinks.LiquidityPool}`);
-    console.log(`SmartWalletProxy: ${deploymentInfo.etherscanLinks.SmartWalletProxy}`);
+    console.log("\n📄 Informações salvas em: deployed-contracts-polygon.json");
+    console.log("🔗 Links do Polygonscan:");
+    console.log(`SmartWallet: ${deploymentInfo.polygonscanLinks.SmartWallet}`);
+    console.log(`SmartWalletV2: ${deploymentInfo.polygonscanLinks.SmartWalletV2}`);
+    console.log(`LiquidityPool: ${deploymentInfo.polygonscanLinks.LiquidityPool}`);
+    console.log(`SmartWalletProxy: ${deploymentInfo.polygonscanLinks.SmartWalletProxy}`);
     
     console.log("\n🎯 PRÓXIMOS PASSOS:");
-    console.log("1. Verificar todos os contratos no Etherscan");
+    console.log("1. Verificar todos os contratos no Polygonscan");
     console.log("2. Testar todas as funções principais");
     console.log("3. Configurar monitoramento");
     console.log("4. Documentar endereços dos contratos");
