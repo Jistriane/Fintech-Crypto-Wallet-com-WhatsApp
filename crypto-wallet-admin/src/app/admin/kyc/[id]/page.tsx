@@ -45,7 +45,6 @@ export default function KYCDetailsPage({ params }: KYCDetailsProps) {
       const data = await kycService.getRequest(params.id);
       setRequest(data);
     } catch (error) {
-      console.error('Erro ao carregar solicitação:', error);
       toast.error('Erro ao carregar solicitação');
     } finally {
       setIsLoading(false);
@@ -59,7 +58,6 @@ export default function KYCDetailsPage({ params }: KYCDetailsProps) {
       toast.success('Solicitação aprovada com sucesso');
       loadData();
     } catch (error) {
-      console.error('Erro ao aprovar solicitação:', error);
       toast.error('Erro ao aprovar solicitação');
     }
   }
@@ -73,7 +71,6 @@ export default function KYCDetailsPage({ params }: KYCDetailsProps) {
       setRejectionReason('');
       loadData();
     } catch (error) {
-      console.error('Erro ao rejeitar solicitação:', error);
       toast.error('Erro ao rejeitar solicitação');
     }
   }
@@ -90,7 +87,6 @@ export default function KYCDetailsPage({ params }: KYCDetailsProps) {
       setSelectedDocuments([]);
       loadData();
     } catch (error) {
-      console.error('Erro ao solicitar documentos:', error);
       toast.error('Erro ao solicitar documentos');
     }
   }
@@ -108,7 +104,6 @@ export default function KYCDetailsPage({ params }: KYCDetailsProps) {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      console.error('Erro ao baixar documento:', error);
       toast.error('Erro ao baixar documento');
     }
   }

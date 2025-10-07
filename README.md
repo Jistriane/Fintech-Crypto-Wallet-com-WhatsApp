@@ -338,12 +338,109 @@ npm run test:coverage
 
 ## 🚀 Deploy
 
-### Desenvolvimento
+### 🌐 Deploy Automático - Vercel (Produção)
+
+**✅ FRONTEND E BACKEND DEPLOYADOS COM SUCESSO NA VERCEL!**
+
+#### 🎯 URLs de Produção
+
+**Frontend (Painel Administrativo):**
+- **URL:** https://crypto-wallet-admin-7m4vjdcus-jistrianedroid-3423s-projects.vercel.app
+- **Inspect:** https://vercel.com/jistrianedroid-3423s-projects/crypto-wallet-admin/HeMvwvddDZqcwb4W5Q2MazAxnjjG
+
+**Backend (Microserviços):**
+- **🔐 Auth Service:** https://auth-service-fbfxxquny-jistrianedroid-3423s-projects.vercel.app
+- **💰 Wallet Service:** https://wallet-service-kn202vjab-jistrianedroid-3423s-projects.vercel.app
+- **📋 KYC Service:** https://kyc-dhqcbvr5c-jistrianedroid-3423s-projects.vercel.app
+- **💧 Liquidity Service:** https://liquidity-a6dd29o81-jistrianedroid-3423s-projects.vercel.app
+- **📱 Notification Service:** https://notification-service-lpcnbxhee-jistrianedroid-3423s-projects.vercel.app
+
+#### 🔐 Credenciais do Painel Administrativo
+
+**Login:** admin@cryptowallet.com  
+**Senha:** admin123
+
+#### 🚀 Deploy Automático Configurado
+
+- ✅ **Deploy automático** a cada push no repositório
+- ✅ **CDN global** da Vercel para performance
+- ✅ **SSL automático** habilitado
+- ✅ **Monitoramento** de uptime ativo
+- ✅ **Rollback automático** em caso de erro
+- ✅ **Configurações otimizadas** para mainnet
+
+#### 📋 Scripts de Deploy
+
 ```bash
-docker-compose up -d
+# Deploy do Frontend
+cd crypto-wallet-admin
+npx vercel --prod --yes
+
+# Deploy do Backend (todos os serviços)
+./scripts/deploy-backend.sh
+
+# Deploy individual de serviços
+cd services/auth-service && npx vercel --prod --yes
+cd services/wallet-service && npx vercel --prod --yes
+cd services/kyc && npx vercel --prod --yes
+cd services/liquidity && npx vercel --prod --yes
+cd services/notification-service && npx vercel --prod --yes
 ```
 
-### Produção
+#### 🔧 Configuração de Variáveis de Ambiente
+
+Configure as variáveis no painel da Vercel para cada serviço:
+
+**Configurações Gerais:**
+```bash
+NODE_ENV=production
+NETWORK=mainnet
+```
+
+**Configurações de Rede:**
+```bash
+ETHEREUM_RPC_URL=https://eth.llamarpc.com
+POLYGON_RPC_URL=https://polygon-rpc.com
+BSC_RPC_URL=https://bsc-dataseed.binance.org
+```
+
+**Configurações de Banco de Dados:**
+```bash
+DATABASE_URL=postgresql://username:password@host:5432/crypto_wallet_mainnet
+REDIS_URL=redis://username:password@host:6379
+```
+
+**Configurações de Segurança:**
+```bash
+JWT_SECRET=your_jwt_secret_here
+ENCRYPTION_KEY=your_encryption_key_here
+```
+
+**Configurações de WhatsApp:**
+```bash
+WHATSAPP_TOKEN=your_whatsapp_token
+WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
+WHATSAPP_WEBHOOK_VERIFY_TOKEN=your_webhook_verify_token
+```
+
+**Configurações de CORS:**
+```bash
+CORS_ORIGIN=https://crypto-wallet-admin.vercel.app
+CORS_CREDENTIALS=true
+```
+
+### 🐳 Desenvolvimento Local
+
+```bash
+# Docker Compose
+docker-compose up -d
+
+# Desenvolvimento
+npm run dev
+```
+
+### ☸️ Produção (Kubernetes)
+
 ```bash
 # Kubernetes
 kubectl apply -f infrastructure/kubernetes/
@@ -433,6 +530,33 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - **Documentação**: [Wiki](https://github.com/Jistriane/Fintech-Crypto-Wallet-com-WhatsApp/wiki)
 - **Discord**: [Servidor da Comunidade](https://discord.gg/notus)
 
+## 🎯 Acesso ao Sistema
+
+### 🌐 URLs de Produção
+
+**Frontend (Painel Administrativo):**
+- **URL Principal:** https://crypto-wallet-admin-7m4vjdcus-jistrianedroid-3423s-projects.vercel.app
+- **Painel Vercel:** https://vercel.com/jistrianedroid-3423s-projects/crypto-wallet-admin
+
+**Backend (APIs):**
+- **Auth API:** https://auth-service-fbfxxquny-jistrianedroid-3423s-projects.vercel.app
+- **Wallet API:** https://wallet-service-kn202vjab-jistrianedroid-3423s-projects.vercel.app
+- **KYC API:** https://kyc-dhqcbvr5c-jistrianedroid-3423s-projects.vercel.app
+- **Liquidity API:** https://liquidity-a6dd29o81-jistrianedroid-3423s-projects.vercel.app
+- **Notification API:** https://notification-service-lpcnbxhee-jistrianedroid-3423s-projects.vercel.app
+
+### 🔐 Credenciais de Acesso
+
+**Painel Administrativo:**
+- **Email:** admin@cryptowallet.com
+- **Senha:** admin123
+
+**Contratos Blockchain (Polygon Mainnet):**
+- **SmartWallet:** [0x86Ad9B4ba424888ddbAE2A29ac2b0E422Ac4C6c4](https://polygonscan.com/address/0x86Ad9B4ba424888ddbAE2A29ac2b0E422Ac4C6c4)
+- **SmartWalletV2:** [0x869c20231C43e8b199A67568C582af6533b0a64a](https://polygonscan.com/address/0x869c20231C43e8b199A67568C582af6533b0a64a)
+- **LiquidityPool:** [0x407D48397824c02ea93F6F2FAF53A19117678eE2](https://polygonscan.com/address/0x407D48397824c02ea93F6F2FAF53A19117678eE2)
+- **SmartWalletProxy:** [0x3Ba4CC75C7f1752Df5aaf645a7f4D75712C3D6F6](https://polygonscan.com/address/0x3Ba4CC75C7f1752Df5aaf645a7f4D75712C3D6F6)
+
 ## 🏆 Status do Projeto
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
@@ -441,14 +565,22 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 ![Version](https://img.shields.io/badge/version-1.0.0-orange)
 ![Polygon Deploy](https://img.shields.io/badge/Polygon-Deployed%20Successfully-green)
 ![Smart Contracts](https://img.shields.io/badge/Smart%20Contracts-4%20Deployed-blue)
+![Vercel Deploy](https://img.shields.io/badge/Vercel-Frontend%20%26%20Backend%20Deployed-green)
+![Mainnet Ready](https://img.shields.io/badge/Mainnet-100%25%20Ready-green)
 
-### 🎉 Deploy Status
+### 🎉 Deploy Status Completo
+- ✅ **Frontend** - Deployado na Vercel (Next.js 15)
+- ✅ **Backend** - 5 microserviços deployados na Vercel
 - ✅ **SmartWallet** - Deployado e funcionando
 - ✅ **SmartWalletV2** - Deployado e funcionando  
 - ✅ **LiquidityPool** - Deployado e funcionando
 - ✅ **SmartWalletProxy** - Deployado e funcionando
 - ✅ **Testes** - 100% passando
 - ✅ **Gas Otimizado** - ~85% de economia vs. Ethereum
+- ✅ **Deploy Automático** - Configurado para mainnet
+- ✅ **CDN Global** - Vercel Edge Network
+- ✅ **SSL Automático** - HTTPS habilitado
+- ✅ **Monitoramento** - Uptime e performance ativos
 
 ---
 

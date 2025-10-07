@@ -108,7 +108,7 @@ export function NotificationStatistics() {
         <CardContent>
           <p className="text-2xl font-bold">
             {stats.totalMessages > 0
-              ? ((stats.deliveredMessages / stats.totalMessages) * 100).toFixed(1)
+              ? (((stats.deliveredMessages || 0) / (stats.totalMessages || 1)) * 100).toFixed(1)
               : 0}
             %
           </p>

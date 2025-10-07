@@ -25,7 +25,6 @@ export function useWallet() {
         (supportedChain) => supportedChain.id === chainId
       );
     } catch (error) {
-      console.error('Erro ao verificar rede suportada:', error);
       return false;
     }
   }, [chainId]);
@@ -38,7 +37,6 @@ export function useWallet() {
         ([, value]) => value.id === chainId
       )?.[0];
     } catch (error) {
-      console.error('Erro ao obter rede atual:', error);
       return null;
     }
   }, [chainId]);
@@ -54,7 +52,6 @@ export function useWallet() {
       await connect({ connector });
       toast.success('Carteira conectada com sucesso');
     } catch (error: any) {
-      console.error('Erro ao conectar carteira:', error);
       if (error.message.includes('User rejected')) {
         toast.error('Conexão rejeitada. Por favor, aprove a conexão no MetaMask.');
       } else if (error.message.includes('MetaMask não encontrado')) {
@@ -74,7 +71,6 @@ export function useWallet() {
       setWalletInfo(null);
       toast.success('Carteira desconectada');
     } catch (error) {
-      console.error('Erro ao desconectar carteira:', error);
       toast.error('Erro ao desconectar carteira');
     }
   }, [disconnect]);

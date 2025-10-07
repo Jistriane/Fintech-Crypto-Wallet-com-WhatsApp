@@ -64,13 +64,18 @@ export default function TokenDetailsPage({ params }: TokenDetailsProps) {
         tokenService.getTokenMetrics(params.id),
       ]);
 
-      setToken(tokenData);
-      setTransactions(transactionsData.transactions);
-      setMetrics(metricsData);
-      setTotalPages(Math.ceil(transactionsData.total / 10));
+      setToken(tokenData || null);
+      setTransactions(transactionsData.transactions || []);
+      setMetrics(metricsData || []);
+      setTotalPages(Math.ceil((transactionsData.total || 0) / 10));
     } catch (error) {
-      console.error('Erro ao carregar dados do token:', error);
       toast.error('Erro ao carregar dados do token');
+      
+      // Em caso de erro, definir valores vazios
+      setToken(null);
+      setTransactions([]);
+      setMetrics([]);
+      setTotalPages(1);
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +93,6 @@ export default function TokenDetailsPage({ params }: TokenDetailsProps) {
       }
       loadData();
     } catch (error) {
-      console.error('Erro ao alterar status do token:', error);
       toast.error('Erro ao alterar status do token');
     }
   }
@@ -100,7 +104,6 @@ export default function TokenDetailsPage({ params }: TokenDetailsProps) {
       toast.success('Preço atualizado com sucesso');
       loadData();
     } catch (error) {
-      console.error('Erro ao atualizar preço:', error);
       toast.error('Erro ao atualizar preço');
     }
   }
@@ -118,7 +121,6 @@ export default function TokenDetailsPage({ params }: TokenDetailsProps) {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      console.error('Erro ao exportar transações:', error);
       toast.error('Erro ao exportar transações');
     }
   }
@@ -235,7 +237,7 @@ export default function TokenDetailsPage({ params }: TokenDetailsProps) {
                   {formatCurrency(token.price.brl)}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  ${token.price.usd.toFixed(2)}
+                  ${(token.price.usd || 0).toFixed(2)}
                 </p>
               </div>
               <div
@@ -252,7 +254,7 @@ export default function TokenDetailsPage({ params }: TokenDetailsProps) {
                 )}
                 <span>
                   {token.price.change24h >= 0 ? '+' : ''}
-                  {token.price.change24h.toFixed(2)}%
+                  {(token.price.change24h || 0).toFixed(2)}%
                 </span>
               </div>
             </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -27,10 +27,12 @@ import {
 import { formatAddress, formatNumber, formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
-import { useAccount } from 'wagmi';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 
 export default function WalletsPage() {
   const { address, isConnected } = useAccount();
+  const { connect, connectors } = useConnect();
+  const { disconnect } = useDisconnect();
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [stats, setStats] = useState<WalletStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -50,11 +52,14 @@ export default function WalletsPage() {
   async function loadData() {
     try {
       setIsLoading(true);
+      
+      
       const filters = {
         ...(search && { search }),
         ...(selectedNetwork !== 'all' && { network: selectedNetwork }),
         ...(selectedStatus !== 'all' && { status: selectedStatus as any }),
       };
+
 
       const [walletsData, statsData] = await Promise.all([
         walletService.getWallets(
@@ -70,11 +75,11 @@ export default function WalletsPage() {
         ),
       ]);
 
+
       setWallets(walletsData.wallets);
       setStats(statsData);
       setTotalPages(Math.ceil(walletsData.total / 10));
     } catch (error) {
-      console.error('Erro ao carregar carteiras:', error);
       toast.error('Erro ao carregar carteiras');
     } finally {
       setIsLoading(false);
@@ -92,7 +97,6 @@ export default function WalletsPage() {
       }
       loadData();
     } catch (error) {
-      console.error('Erro ao alterar status da carteira:', error);
       toast.error('Erro ao alterar status da carteira');
     }
   }
@@ -103,7 +107,6 @@ export default function WalletsPage() {
       toast.success('Saldo atualizado com sucesso');
       loadData();
     } catch (error) {
-      console.error('Erro ao atualizar saldo:', error);
       toast.error('Erro ao atualizar saldo');
     }
   }
@@ -148,6 +151,43 @@ export default function WalletsPage() {
           Gerencie as carteiras dos usuários
         </p>
       </div>
+
+      {/* Debug: Status da Carteira */}
+      <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-orange-800 dark:text-orange-200">
+                🔍 Debug - Status da Carteira
+              </h3>
+              <p className="text-sm text-orange-600 dark:text-orange-300">
+                Conectado: {isConnected ? '✅ Sim' : '❌ Não'} | 
+                Endereço: {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'N/A'} |
+                Rede: {getNetworkName()}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              {!isConnected ? (
+                <Button 
+                  onClick={() => connect({ connector: connectors[0] })}
+                  size="sm"
+                  variant="outline"
+                >
+                  Conectar Carteira
+                </Button>
+              ) : (
+                <Button 
+                  onClick={() => disconnect()}
+                  size="sm"
+                  variant="outline"
+                >
+                  Desconectar
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="p-6">

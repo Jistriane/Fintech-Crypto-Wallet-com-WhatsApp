@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -40,29 +40,65 @@ export default function TokensPage() {
   const [selectedStatus, setSelectedStatus] = useState('all');
 
   useEffect(() => {
-    loadData();
+    // Adicionar um pequeno delay para garantir que o backend esteja pronto
+    const timer = setTimeout(() => {
+      loadData();
+    }, 1000);
+    
+    return () => clearTimeout(timer);
   }, [page, search, selectedNetwork, selectedStatus]);
 
-  async function loadData() {
+  async function loadData(retryCount = 0) {
     try {
       setIsLoading(true);
+      
       const filters = {
         ...(search && { search }),
         ...(selectedNetwork !== 'all' && { network: selectedNetwork }),
         ...(selectedStatus !== 'all' && { status: selectedStatus as any }),
       };
 
+
       const [tokensData, statsData] = await Promise.all([
         tokenService.getTokens(page, 10, filters),
         tokenService.getTokenStats(),
       ]);
 
-      setTokens(tokensData.tokens);
-      setStats(statsData);
-      setTotalPages(Math.ceil(tokensData.total / 10));
+
+      // Processar dados de tokens
+      setTokens(tokensData.tokens || []);
+      setTotalPages(Math.ceil((tokensData.total || 0) / 10));
+
+      // Processar estatísticas
+      setStats(statsData || {
+        totalTokens: 0,
+        activeTokens: 0,
+        totalMarketCap: 0,
+        totalVolume24h: 0,
+        topTokens: []
+      });
     } catch (error) {
-      console.error('Erro ao carregar tokens:', error);
+      
+      // Se for erro de conexão e ainda não tentou 3 vezes, tentar novamente
+      if (error.code === 'ERR_NETWORK' && retryCount < 3) {
+        setTimeout(() => {
+          loadData(retryCount + 1);
+        }, 2000);
+        return;
+      }
+      
       toast.error('Erro ao carregar tokens');
+      
+      // Em caso de erro, definir valores vazios
+      setTokens([]);
+      setStats({
+        totalTokens: 0,
+        activeTokens: 0,
+        totalMarketCap: 0,
+        totalVolume24h: 0,
+        topTokens: []
+      });
+      setTotalPages(1);
     } finally {
       setIsLoading(false);
     }
@@ -79,7 +115,6 @@ export default function TokensPage() {
       }
       loadData();
     } catch (error) {
-      console.error('Erro ao alterar status do token:', error);
       toast.error('Erro ao alterar status do token');
     }
   }
@@ -90,7 +125,6 @@ export default function TokensPage() {
       toast.success('Preço atualizado com sucesso');
       loadData();
     } catch (error) {
-      console.error('Erro ao atualizar preço:', error);
       toast.error('Erro ao atualizar preço');
     }
   }
@@ -111,6 +145,25 @@ export default function TokensPage() {
           Gerencie os tokens disponíveis na plataforma
         </p>
       </div>
+
+      {/* Debug: Status da API */}
+      <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-green-800 dark:text-green-200">
+                🔍 Debug - Status da API
+              </h3>
+              <p className="text-sm text-green-600 dark:text-green-300">
+                Backend: http://localhost:3333 | 
+                Status: {isLoading ? 'Carregando...' : 'Pronto'} |
+                Tokens: {tokens.length} | 
+                Stats: {stats ? 'Carregado' : 'Não carregado'}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="p-6">
@@ -216,7 +269,8 @@ export default function TokensPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {tokens.map((token) => (
+              {tokens.length > 0 ? (
+                tokens.map((token) => (
                 <TableRow key={token.id}>
                   <TableCell>
                     <div className="flex items-center space-x-3">
@@ -250,7 +304,7 @@ export default function TokensPage() {
                         {formatCurrency(token.price.brl)}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        ${token.price.usd.toFixed(2)}
+                        ${(token.price.usd || 0).toFixed(2)}
                       </p>
                     </div>
                   </TableCell>
@@ -269,7 +323,7 @@ export default function TokensPage() {
                       )}
                       <span>
                         {token.price.change24h >= 0 ? '+' : ''}
-                        {token.price.change24h.toFixed(2)}%
+                        {(token.price.change24h || 0).toFixed(2)}%
                       </span>
                     </div>
                   </TableCell>
@@ -325,7 +379,22 @@ export default function TokensPage() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-8">
+                    <div className="flex flex-col items-center space-y-4">
+                      <Coins className="h-12 w-12 text-muted-foreground" />
+                      <div>
+                        <h3 className="text-lg font-medium">Nenhum token encontrado</h3>
+                        <p className="text-muted-foreground">
+                          {search ? 'Tente ajustar os filtros de busca' : 'Nenhum token foi adicionado ao sistema ainda'}
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>

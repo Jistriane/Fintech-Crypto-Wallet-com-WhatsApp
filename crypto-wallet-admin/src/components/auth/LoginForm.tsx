@@ -35,7 +35,6 @@ export function LoginForm() {
       setIsLoading(true);
       await login(data);
     } catch (error) {
-      console.error('Erro ao fazer login:', error);
     } finally {
       setIsLoading(false);
     }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   AreaChart,
   BarChart,
@@ -25,8 +25,10 @@ import {
   TrendingDown,
 } from 'lucide-react';
 import { formatCurrency, formatNumber } from '@/lib/utils';
+import { useAccount } from 'wagmi';
 
 export default function DashboardPage() {
+  const { address, isConnected } = useAccount();
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [tokenMetrics, setTokenMetrics] = useState<TokenMetrics[]>([]);
@@ -36,6 +38,7 @@ export default function DashboardPage() {
   useEffect(() => {
     async function loadDashboardData() {
       try {
+
         const [metrics, chartData, tokenMetrics, networkMetrics] = await Promise.all([
           dashboardService.getMetrics(),
           dashboardService.getChartData(),
@@ -43,19 +46,19 @@ export default function DashboardPage() {
           dashboardService.getNetworkMetrics(),
         ]);
 
+
         setMetrics(metrics);
         setChartData(chartData);
         setTokenMetrics(tokenMetrics);
         setNetworkMetrics(networkMetrics);
       } catch (error) {
-        console.error('Erro ao carregar dados do dashboard:', error);
       } finally {
         setIsLoading(false);
       }
     }
 
     loadDashboardData();
-  }, []);
+  }, [address, isConnected]);
 
   if (isLoading) {
     return (
@@ -73,6 +76,24 @@ export default function DashboardPage() {
           Visão geral do sistema Notus Crypto Wallet
         </p>
       </div>
+
+      {/* Debug: Status da Carteira */}
+      <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-blue-800 dark:text-blue-200">
+                🔍 Debug - Status da Carteira
+              </h3>
+              <p className="text-sm text-blue-600 dark:text-blue-300">
+                Conectado: {isConnected ? '✅ Sim' : '❌ Não'} | 
+                Endereço: {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'N/A'} |
+                Rede: Ethereum
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card className="p-6">
@@ -209,7 +230,7 @@ export default function DashboardPage() {
                     )}
                     <span>
                       {token.priceChange24h >= 0 ? '+' : ''}
-                      {token.priceChange24h.toFixed(2)}%
+                      {(token.priceChange24h || 0).toFixed(2)}%
                     </span>
                   </div>
                 </div>
@@ -238,7 +259,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="text-right">
                   <p className="font-medium">
-                    {network.volume.toFixed(2)} ETH
+                    {(network.volume || 0).toFixed(2)} ETH
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {formatNumber(network.activeWallets)} carteiras

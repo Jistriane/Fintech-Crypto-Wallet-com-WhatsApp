@@ -59,7 +59,6 @@ export default function WalletDetailsPage({ params }: WalletDetailsProps) {
       setTransactions(transactionsData.transactions);
       setTotalPages(Math.ceil(transactionsData.total / 10));
     } catch (error) {
-      console.error('Erro ao carregar dados da carteira:', error);
       toast.error('Erro ao carregar dados da carteira');
     } finally {
       setIsLoading(false);
@@ -78,7 +77,6 @@ export default function WalletDetailsPage({ params }: WalletDetailsProps) {
       }
       loadData();
     } catch (error) {
-      console.error('Erro ao alterar status da carteira:', error);
       toast.error('Erro ao alterar status da carteira');
     }
   }
@@ -90,7 +88,6 @@ export default function WalletDetailsPage({ params }: WalletDetailsProps) {
       toast.success('Saldo atualizado com sucesso');
       loadData();
     } catch (error) {
-      console.error('Erro ao atualizar saldo:', error);
       toast.error('Erro ao atualizar saldo');
     }
   }
@@ -108,7 +105,6 @@ export default function WalletDetailsPage({ params }: WalletDetailsProps) {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      console.error('Erro ao exportar transações:', error);
       toast.error('Erro ao exportar transações');
     }
   }

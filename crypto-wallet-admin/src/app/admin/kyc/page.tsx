@@ -62,7 +62,6 @@ export default function KYCPage() {
       setStats(statsData);
       setTotalPages(Math.ceil(requestsData.total / 10));
     } catch (error) {
-      console.error('Erro ao carregar solicitações:', error);
       toast.error('Erro ao carregar solicitações');
     } finally {
       setIsLoading(false);
@@ -87,7 +86,6 @@ export default function KYCPage() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      console.error('Erro ao exportar solicitações:', error);
       toast.error('Erro ao exportar solicitações');
     }
   }
@@ -145,7 +143,7 @@ export default function KYCPage() {
                 Taxa de Aprovação
               </p>
               <p className="mt-2 text-3xl font-bold">
-                {stats?.completionRate.toFixed(1)}%
+                {(stats?.completionRate || 0).toFixed(1)}%
               </p>
             </div>
             <CheckCircle className="h-8 w-8 text-green-500" />

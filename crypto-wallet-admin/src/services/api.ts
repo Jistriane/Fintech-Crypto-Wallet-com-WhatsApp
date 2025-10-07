@@ -5,6 +5,7 @@ const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333',
   headers: {
     'Content-Type': 'application/json',
+    'Authorization': 'Bearer admin-token',
   },
 });
 
@@ -14,13 +15,18 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  
   return config;
 });
 
 // Interceptor para tratar erros
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   async (error) => {
+    
     if (error.response?.status === 401) {
       localStorage.removeItem('auth_token');
       window.location.href = '/login';

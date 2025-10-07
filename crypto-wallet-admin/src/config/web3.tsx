@@ -5,7 +5,6 @@ import { createWeb3Modal } from '@web3modal/wagmi/react';
 
 // Configuração do projeto Web3Modal
 if (!process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID) {
-  console.warn(
     'NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID is not set. Please set it in your .env file.\nGet your project ID from https://cloud.walletconnect.com'
   );
 }
@@ -15,7 +14,7 @@ const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
 const metadata = {
   name: 'Crypto Wallet',
   description: 'Carteira Digital com WhatsApp',
-  url: typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001',
+  url: typeof window !== 'undefined' ? window.location.origin : (process.env.NODE_ENV === 'production' ? 'https://crypto-wallet-admin.vercel.app' : 'http://localhost:3001'),
   icons: ['/icon.png']
 };
 
@@ -44,7 +43,7 @@ if (typeof window !== 'undefined') {
       '--w3m-background-color': 'var(--background)',
       '--w3m-text-color': 'var(--foreground)',
     },
-    defaultChain: mainnet,
+    defaultChain: process.env.NODE_ENV === 'production' ? mainnet : mainnet,
     includeWalletIds: [
       'c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', // MetaMask
       'fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa', // Coinbase

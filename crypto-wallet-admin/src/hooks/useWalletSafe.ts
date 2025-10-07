@@ -21,7 +21,6 @@ export function useWalletSafe() {
       await connect({ connector });
       toast.success('Carteira conectada com sucesso');
     } catch (error: any) {
-      console.error('Erro ao conectar carteira:', error);
       if (error.message.includes('User rejected')) {
         toast.error('Conexão rejeitada. Por favor, aprove a conexão no MetaMask.');
       } else if (error.message.includes('MetaMask não encontrado')) {
@@ -40,7 +39,6 @@ export function useWalletSafe() {
       disconnect();
       toast.success('Carteira desconectada');
     } catch (error) {
-      console.error('Erro ao desconectar carteira:', error);
       toast.error('Erro ao desconectar carteira');
     }
   }, [disconnect]);

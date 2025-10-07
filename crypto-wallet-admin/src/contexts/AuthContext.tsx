@@ -49,7 +49,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const user = await authService.getProfile();
       setUser(user);
     } catch (error) {
-      console.error('Erro ao verificar autenticação:', error);
       // Limpa o token inválido
       localStorage.removeItem('auth_token');
     } finally {
@@ -98,7 +97,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.success('Logout realizado com sucesso!');
     } catch (error) {
       toast.error('Erro ao fazer logout');
-      console.error('Erro ao fazer logout:', error);
     }
   }
 

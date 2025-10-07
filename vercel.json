@@ -1,0 +1,72 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "services/auth-service/package.json",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["services/auth-service/**"]
+      }
+    },
+    {
+      "src": "services/wallet-service/package.json",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["services/wallet-service/**"]
+      }
+    },
+    {
+      "src": "services/kyc/package.json",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["services/kyc/**"]
+      }
+    },
+    {
+      "src": "services/liquidity/package.json",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["services/liquidity/**"]
+      }
+    },
+    {
+      "src": "services/notification-service/package.json",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["services/notification-service/**"]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/auth/(.*)",
+      "dest": "/services/auth-service/src/index.ts"
+    },
+    {
+      "src": "/wallet/(.*)",
+      "dest": "/services/wallet-service/src/index.ts"
+    },
+    {
+      "src": "/kyc/(.*)",
+      "dest": "/services/kyc/src/index.ts"
+    },
+    {
+      "src": "/liquidity/(.*)",
+      "dest": "/services/liquidity/src/index.ts"
+    },
+    {
+      "src": "/notifications/(.*)",
+      "dest": "/services/notification-service/src/index.ts"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "NETWORK": "mainnet"
+  },
+  "regions": ["iad1"],
+  "functions": {
+    "services/**/*.ts": {
+      "maxDuration": 30
+    }
+  }
+}
